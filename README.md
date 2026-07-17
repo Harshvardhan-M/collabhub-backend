@@ -29,6 +29,9 @@ npm run dev
 |--------|-------|-------------|
 | GET | `/` | API status |
 | GET | `/api/health` | Health check |
+| POST | `/api/auth/register` | Register a new user |
+| POST | `/api/auth/login` | Login and receive JWT |
 
 ## Progress Log
 - **Day 1**: Project setup, Express server skeleton, health check endpoint
+- **Day 3**: User model with password hashing (bcrypt), JWT-based register & login endpoints
