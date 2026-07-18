@@ -31,7 +31,10 @@ npm run dev
 | GET | `/api/health` | Health check |
 | POST | `/api/auth/register` | Register a new user |
 | POST | `/api/auth/login` | Login and receive JWT |
+| GET | `/api/users/me` | Get logged-in user's profile (protected) |
+| PUT | `/api/users/me` | Update logged-in user's profile (protected) |
 
 ## Progress Log
 - **Day 1**: Project setup, Express server skeleton, health check endpoint
 - **Day 3**: User model with password hashing (bcrypt), JWT-based register & login endpoints
+- **Day 4**: Auth middleware (`protect`) to guard private routes, profile get/update endpoints
