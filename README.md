@@ -37,9 +37,27 @@ npm run dev
 | GET | `/api/workspaces` | Get all workspaces the user belongs to (protected) |
 | GET | `/api/workspaces/:id` | Get a single workspace by ID (protected) |
 | POST | `/api/workspaces/join` | Join a workspace via invite code (protected) |
+| GET | `/api/messages/:workspaceId?channel=general` | Get chat history for a channel (protected) |
+
+## Socket.IO Events
+| Event (client → server) | Payload | Description |
+|--------------------------|---------|--------------|
+| `joinChannel` | `{ workspaceId, channel }` | Join a workspace channel room |
+| `leaveChannel` | `{ workspaceId, channel }` | Leave a channel room |
+| `sendMessage` | `{ workspaceId, channel, content }` | Send & persist a chat message |
+| `typing` | `{ workspaceId, channel }` | Notify others user is typing |
+
+| Event (server → client) | Payload | Description |
+|--------------------------|---------|--------------|
+| `newMessage` | message object | Broadcast when a message is sent |
+| `userTyping` | `{ userId, name }` | Someone is typing |
+| `errorMessage` | `{ message }` | Something went wrong |
+
+Connect with a JWT: `io(url, { auth: { token: "<jwt>" } })`
 
 ## Progress Log
 - **Day 1**: Project setup, Express server skeleton, health check endpoint
 - **Day 3**: User model with password hashing (bcrypt), JWT-based register & login endpoints
 - **Day 4**: Auth middleware (`protect`) to guard private routes, profile get/update endpoints
 - **Day 5**: Workspace model, create/join/list workspaces, invite-code-based membership
+- **Day 6**: Real-time chat via Socket.IO (JWT-authenticated sockets, rooms per workspace/channel), message persistence + history endpoint
