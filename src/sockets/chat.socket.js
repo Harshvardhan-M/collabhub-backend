@@ -23,6 +23,9 @@ const initChatSocket = (io) => {
   io.on('connection', (socket) => {
     console.log(`Socket connected: ${socket.user.name} (${socket.id})`);
 
+    // Personal room for direct notifications to this user
+    socket.join(`user:${socket.user._id}`);
+
     // Join a workspace's channel room
     socket.on('joinChannel', ({ workspaceId, channel = 'general' }) => {
       const room = `${workspaceId}:${channel}`;

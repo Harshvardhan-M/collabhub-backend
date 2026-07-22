@@ -38,6 +38,9 @@ npm run dev
 | GET | `/api/workspaces/:id` | Get a single workspace by ID (protected) |
 | POST | `/api/workspaces/join` | Join a workspace via invite code (protected) |
 | GET | `/api/messages/:workspaceId?channel=general` | Get chat history for a channel (protected) |
+| GET | `/api/notifications` | Get logged-in user's notifications (protected) |
+| PUT | `/api/notifications/:id/read` | Mark one notification as read (protected) |
+| PUT | `/api/notifications/read-all` | Mark all notifications as read (protected) |
 
 ## Socket.IO Events
 | Event (client → server) | Payload | Description |
@@ -51,6 +54,7 @@ npm run dev
 |--------------------------|---------|--------------|
 | `newMessage` | message object | Broadcast when a message is sent |
 | `userTyping` | `{ userId, name }` | Someone is typing |
+| `newNotification` | notification object | Sent directly to a user (e.g. someone joined their workspace) |
 | `errorMessage` | `{ message }` | Something went wrong |
 
 Connect with a JWT: `io(url, { auth: { token: "<jwt>" } })`
@@ -61,3 +65,4 @@ Connect with a JWT: `io(url, { auth: { token: "<jwt>" } })`
 - **Day 4**: Auth middleware (`protect`) to guard private routes, profile get/update endpoints
 - **Day 5**: Workspace model, create/join/list workspaces, invite-code-based membership
 - **Day 6**: Real-time chat via Socket.IO (JWT-authenticated sockets, rooms per workspace/channel), message persistence + history endpoint
+- **Day 7**: Notification system — model, REST endpoints (list/mark read), and real-time delivery via personal socket rooms; triggered on workspace joins

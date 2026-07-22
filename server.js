@@ -15,6 +15,7 @@ const io = new Server(server, {
 });
 
 initChatSocket(io);
+app.set('io', io);
 
 // Only connect to DB if MONGO_URI is set (so server can boot even without it on Day 1)
 if (process.env.MONGO_URI) {

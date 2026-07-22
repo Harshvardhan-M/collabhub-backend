@@ -1,5 +1,6 @@
 const crypto = require('crypto');
 const Workspace = require('../models/Workspace');
+const { createNotification } = require('../utils/notify');
 
 const generateInviteCode = () => crypto.randomBytes(4).toString('hex');
 
@@ -86,6 +87,15 @@ exports.joinWorkspace = async (req, res) => {
 
     workspace.members.push({ user: req.user._id, role: 'member' });
     await workspace.save();
+
+    await createNotification({
+      recipient: workspace.owner,
+      sender: req.user._id,
+      type: 'workspace_join',
+      workspace: workspace._id,
+      message: `${req.user.name} joined "${workspace.name}"`,
+      io: req.app.get('io'),
+    });
 
     res.status(200).json(workspace);
   } catch (err) {
