@@ -9,6 +9,7 @@ const userRoutes = require('./routes/user.routes');
 const workspaceRoutes = require('./routes/workspace.routes');
 const messageRoutes = require('./routes/message.routes');
 const notificationRoutes = require('./routes/notification.routes');
+const { errorHandler, notFound } = require('./middlewares/error.middleware');
 
 const app = express();
 
@@ -27,5 +28,9 @@ app.use('/api/notifications', notificationRoutes);
 app.get('/', (req, res) => {
   res.json({ message: 'CollabHub API is running' });
 });
+
+// 404 handler for unmatched routes, then the global error handler — must be last
+app.use(notFound);
+app.use(errorHandler);
 
 module.exports = app;

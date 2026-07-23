@@ -66,3 +66,4 @@ Connect with a JWT: `io(url, { auth: { token: "<jwt>" } })`
 - **Day 5**: Workspace model, create/join/list workspaces, invite-code-based membership
 - **Day 6**: Real-time chat via Socket.IO (JWT-authenticated sockets, rooms per workspace/channel), message persistence + history endpoint
 - **Day 7**: Notification system — model, REST endpoints (list/mark read), and real-time delivery via personal socket rooms; triggered on workspace joins
+- **Day 8**: Centralized error handling (`AppError`, global `errorHandler`, `notFound`), async wrapper util, and request validation (`express-validator`) on auth & workspace routes
