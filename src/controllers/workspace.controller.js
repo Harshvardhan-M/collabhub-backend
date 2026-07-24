@@ -1,5 +1,6 @@
 const crypto = require('crypto');
 const Workspace = require('../models/Workspace');
+const Channel = require('../models/Channel');
 const { createNotification } = require('../utils/notify');
 
 const generateInviteCode = () => crypto.randomBytes(4).toString('hex');
@@ -20,6 +21,13 @@ exports.createWorkspace = async (req, res) => {
       owner: req.user._id,
       members: [{ user: req.user._id, role: 'admin' }],
       inviteCode: generateInviteCode(),
+    });
+
+    // Every workspace starts with a default #general channel
+    await Channel.create({
+      name: 'general',
+      workspace: workspace._id,
+      createdBy: req.user._id,
     });
 
     res.status(201).json(workspace);

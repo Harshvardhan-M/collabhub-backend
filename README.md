@@ -41,6 +41,9 @@ npm run dev
 | GET | `/api/notifications` | Get logged-in user's notifications (protected) |
 | PUT | `/api/notifications/:id/read` | Mark one notification as read (protected) |
 | PUT | `/api/notifications/read-all` | Mark all notifications as read (protected) |
+| POST | `/api/workspaces/:workspaceId/channels` | Create a channel in a workspace (protected) |
+| GET | `/api/workspaces/:workspaceId/channels` | List channels in a workspace (protected) |
+| DELETE | `/api/workspaces/:workspaceId/channels/:channelId` | Delete a channel (creator/admin only) (protected) |
 
 ## Socket.IO Events
 | Event (client → server) | Payload | Description |
@@ -67,3 +70,4 @@ Connect with a JWT: `io(url, { auth: { token: "<jwt>" } })`
 - **Day 6**: Real-time chat via Socket.IO (JWT-authenticated sockets, rooms per workspace/channel), message persistence + history endpoint
 - **Day 7**: Notification system — model, REST endpoints (list/mark read), and real-time delivery via personal socket rooms; triggered on workspace joins
 - **Day 8**: Centralized error handling (`AppError`, global `errorHandler`, `notFound`), async wrapper util, and request validation (`express-validator`) on auth & workspace routes
+- **Day 9**: Channel model + CRUD (nested under workspaces), auto-created default `#general` channel on workspace creation
