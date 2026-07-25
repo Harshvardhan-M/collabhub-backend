@@ -1,6 +1,9 @@
 const jwt = require('jsonwebtoken');
 const User = require('../models/User');
 const Message = require('../models/Message');
+const Channel = require('../models/Channel');
+const { resolveMentions } = require('../utils/mentions');
+const { createNotification } = require('../utils/notify');
 
 const initChatSocket = (io) => {
   // Authenticate socket connections using the JWT sent from the client
@@ -39,10 +42,15 @@ const initChatSocket = (io) => {
       socket.leave(room);
     });
 
-    // Handle a new chat message: persist it, then broadcast to the room
+    // Handle a new chat message: validate channel, persist it, broadcast, notify mentions
     socket.on('sendMessage', async ({ workspaceId, channel = 'general', content }) => {
       try {
         if (!content || !content.trim()) return;
+
+        const channelExists = await Channel.findOne({ workspace: workspaceId, name: channel });
+        if (!channelExists) {
+          return socket.emit('errorMessage', { message: `Channel "${channel}" does not exist` });
+        }
 
         const message = await Message.create({
           workspace: workspaceId,
@@ -55,6 +63,19 @@ const initChatSocket = (io) => {
 
         const room = `${workspaceId}:${channel}`;
         io.to(room).emit('newMessage', populatedMessage);
+
+        // Notify any @mentioned workspace members in real time
+        const mentionedUsers = await resolveMentions(content, workspaceId, socket.user._id);
+        for (const mentionedUser of mentionedUsers) {
+          await createNotification({
+            recipient: mentionedUser._id,
+            sender: socket.user._id,
+            type: 'mention',
+            workspace: workspaceId,
+            message: `${socket.user.name} mentioned you in #${channel}`,
+            io,
+          });
+        }
       } catch (err) {
         socket.emit('errorMessage', { message: 'Failed to send message', error: err.message });
       }

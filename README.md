@@ -57,10 +57,12 @@ npm run dev
 |--------------------------|---------|--------------|
 | `newMessage` | message object | Broadcast when a message is sent |
 | `userTyping` | `{ userId, name }` | Someone is typing |
-| `newNotification` | notification object | Sent directly to a user (e.g. someone joined their workspace) |
+| `newNotification` | notification object | Sent directly to a user (e.g. someone joined their workspace, or @mentioned them) |
 | `errorMessage` | `{ message }` | Something went wrong |
 
 Connect with a JWT: `io(url, { auth: { token: "<jwt>" } })`
+
+Mention a teammate in a message with `@firstname` (e.g. `"hey @priya check this"`) to trigger a real-time notification to them.
 
 ## Progress Log
 - **Day 1**: Project setup, Express server skeleton, health check endpoint
@@ -71,3 +73,4 @@ Connect with a JWT: `io(url, { auth: { token: "<jwt>" } })`
 - **Day 7**: Notification system — model, REST endpoints (list/mark read), and real-time delivery via personal socket rooms; triggered on workspace joins
 - **Day 8**: Centralized error handling (`AppError`, global `errorHandler`, `notFound`), async wrapper util, and request validation (`express-validator`) on auth & workspace routes
 - **Day 9**: Channel model + CRUD (nested under workspaces), auto-created default `#general` channel on workspace creation
+- **Day 10**: Chat now validates channels against real DB records (not a trusted string), plus `@mention` parsing that triggers real-time notifications to mentioned teammates
