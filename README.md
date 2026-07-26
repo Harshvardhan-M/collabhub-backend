@@ -64,6 +64,12 @@ Connect with a JWT: `io(url, { auth: { token: "<jwt>" } })`
 
 Mention a teammate in a message with `@firstname` (e.g. `"hey @priya check this"`) to trigger a real-time notification to them.
 
+## Testing
+Integration tests use Jest + Supertest against an in-memory MongoDB (no real DB needed):
+```bash
+npm test
+```
+
 ## Progress Log
 - **Day 1**: Project setup, Express server skeleton, health check endpoint
 - **Day 3**: User model with password hashing (bcrypt), JWT-based register & login endpoints
@@ -74,3 +80,4 @@ Mention a teammate in a message with `@firstname` (e.g. `"hey @priya check this"
 - **Day 8**: Centralized error handling (`AppError`, global `errorHandler`, `notFound`), async wrapper util, and request validation (`express-validator`) on auth & workspace routes
 - **Day 9**: Channel model + CRUD (nested under workspaces), auto-created default `#general` channel on workspace creation
 - **Day 10**: Chat now validates channels against real DB records (not a trusted string), plus `@mention` parsing that triggers real-time notifications to mentioned teammates
+- **Day 11**: Automated integration tests (Jest + Supertest + in-memory MongoDB) covering auth and workspace flows
