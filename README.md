@@ -81,3 +81,4 @@ npm test
 - **Day 9**: Channel model + CRUD (nested under workspaces), auto-created default `#general` channel on workspace creation
 - **Day 10**: Chat now validates channels against real DB records (not a trusted string), plus `@mention` parsing that triggers real-time notifications to mentioned teammates
 - **Day 11**: Automated integration tests (Jest + Supertest + in-memory MongoDB) covering auth and workspace flows
+- **Day 12**: Rate limiting (strict on `/api/auth`, general on all `/api` routes) to prevent brute-force/abuse, plus NoSQL injection sanitization on all incoming input
