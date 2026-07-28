@@ -24,6 +24,10 @@ cp .env.example .env
 npm run dev
 ```
 
+## API Docs
+Interactive Swagger UI is available at `/api-docs` once the server is running
+(e.g. `http://localhost:5000/api-docs`).
+
 ## API Endpoints
 | Method | Route | Description |
 |--------|-------|-------------|
@@ -82,3 +86,4 @@ npm test
 - **Day 10**: Chat now validates channels against real DB records (not a trusted string), plus `@mention` parsing that triggers real-time notifications to mentioned teammates
 - **Day 11**: Automated integration tests (Jest + Supertest + in-memory MongoDB) covering auth and workspace flows
 - **Day 12**: Rate limiting (strict on `/api/auth`, general on all `/api` routes) to prevent brute-force/abuse, plus NoSQL injection sanitization on all incoming input
+- **Day 13**: Interactive API documentation with Swagger/OpenAPI, served at `/api-docs`, covering every route

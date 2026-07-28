@@ -7,8 +7,55 @@ const {
 } = require('../controllers/notification.controller');
 const { protect } = require('../middlewares/auth.middleware');
 
+/**
+ * @openapi
+ * /notifications:
+ *   get:
+ *     summary: Get logged-in user's notifications (most recent 50)
+ *     tags: [Notifications]
+ *     responses:
+ *       200:
+ *         description: List of notifications
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: array
+ *               items: { $ref: '#/components/schemas/Notification' }
+ */
 router.get('/', protect, getNotifications);
+
+/**
+ * @openapi
+ * /notifications/read-all:
+ *   put:
+ *     summary: Mark all notifications as read
+ *     tags: [Notifications]
+ *     responses:
+ *       200:
+ *         description: All notifications marked as read
+ */
 router.put('/read-all', protect, markAllAsRead);
+
+/**
+ * @openapi
+ * /notifications/{id}/read:
+ *   put:
+ *     summary: Mark a single notification as read
+ *     tags: [Notifications]
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema: { type: string }
+ *     responses:
+ *       200:
+ *         description: Notification updated
+ *         content:
+ *           application/json:
+ *             schema: { $ref: '#/components/schemas/Notification' }
+ *       404:
+ *         description: Notification not found
+ */
 router.put('/:id/read', protect, markAsRead);
 
 module.exports = router;

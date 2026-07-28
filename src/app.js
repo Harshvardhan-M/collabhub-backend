@@ -3,6 +3,8 @@ const cors = require('cors');
 const helmet = require('helmet');
 const morgan = require('morgan');
 const mongoSanitize = require('express-mongo-sanitize');
+const swaggerUi = require('swagger-ui-express');
+const swaggerSpec = require('./config/swagger');
 
 const healthRoutes = require('./routes/health.routes');
 const authRoutes = require('./routes/auth.routes');
@@ -25,6 +27,15 @@ app.use(morgan('dev'));
 if (process.env.NODE_ENV !== 'test') {
   app.use('/api', apiLimiter);
 }
+
+// Interactive API docs — relax helmet's CSP just for this route so Swagger UI's
+// inline styles/scripts aren't blocked
+app.use(
+  '/api-docs',
+  helmet({ contentSecurityPolicy: false }),
+  swaggerUi.serve,
+  swaggerUi.setup(swaggerSpec, { customSiteTitle: 'CollabHub API Docs' })
+);
 
 app.use('/api/health', healthRoutes);
 app.use('/api/auth', authRoutes);
