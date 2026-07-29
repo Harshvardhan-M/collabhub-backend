@@ -1,5 +1,7 @@
 # CollabHub
 
+![CI](https://github.com/YOUR_USERNAME/YOUR_REPO/actions/workflows/ci.yml/badge.svg)
+
 A real-time collaboration platform backend — team chat, live notifications,
 and presence tracking, built with Node.js, Express, MongoDB, and Socket.IO.
 
@@ -87,3 +89,4 @@ npm test
 - **Day 11**: Automated integration tests (Jest + Supertest + in-memory MongoDB) covering auth and workspace flows
 - **Day 12**: Rate limiting (strict on `/api/auth`, general on all `/api` routes) to prevent brute-force/abuse, plus NoSQL injection sanitization on all incoming input
 - **Day 13**: Interactive API documentation with Swagger/OpenAPI, served at `/api-docs`, covering every route
+- **Day 14**: GitHub Actions CI — runs the test suite on Node 18.x & 20.x on every push/PR, plus a smoke test that boots the server and hits `/api/health`
