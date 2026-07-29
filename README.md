@@ -1,7 +1,5 @@
 # CollabHub
 
-![CI](https://github.com/Harshvardhan-M/collabhub-backend/actions/workflows/ci.yml/badge.svg)
-
 A real-time collaboration platform backend — team chat, live notifications,
 and presence tracking, built with Node.js, Express, MongoDB, and Socket.IO.
 
