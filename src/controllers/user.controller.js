@@ -1,7 +1,5 @@
 const User = require('../models/User');
 
-// @route  GET /api/users/me
-// @desc   Get logged-in user's profile
 exports.getMe = async (req, res) => {
   try {
     res.status(200).json(req.user);
@@ -10,16 +8,11 @@ exports.getMe = async (req, res) => {
   }
 };
 
-// @route  PUT /api/users/me
-// @desc   Update logged-in user's profile
 exports.updateMe = async (req, res) => {
   try {
     const { name, avatar } = req.body;
-
     const user = await User.findById(req.user._id);
-    if (!user) {
-      return res.status(404).json({ message: 'User not found' });
-    }
+    if (!user) return res.status(404).json({ message: 'User not found' });
 
     if (name) user.name = name;
     if (avatar) user.avatar = avatar;

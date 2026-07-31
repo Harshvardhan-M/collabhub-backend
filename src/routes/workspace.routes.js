@@ -25,24 +25,16 @@ const channelRoutes = require('./channel.routes');
  *             required: [name]
  *             properties:
  *               name: { type: string, example: My Team }
- *               description: { type: string, example: A test workspace }
+ *               description: { type: string }
  *     responses:
  *       201:
  *         description: Workspace created
- *         content:
- *           application/json:
- *             schema: { $ref: '#/components/schemas/Workspace' }
  *   get:
  *     summary: List workspaces the logged-in user belongs to
  *     tags: [Workspaces]
  *     responses:
  *       200:
  *         description: List of workspaces
- *         content:
- *           application/json:
- *             schema:
- *               type: array
- *               items: { $ref: '#/components/schemas/Workspace' }
  */
 router.post('/', protect, workspaceValidation, createWorkspace);
 router.get('/', protect, getMyWorkspaces);
@@ -61,13 +53,10 @@ router.get('/', protect, getMyWorkspaces);
  *     responses:
  *       200:
  *         description: Workspace details
- *         content:
- *           application/json:
- *             schema: { $ref: '#/components/schemas/Workspace' }
  *       403:
- *         description: Not a member of this workspace
+ *         description: Not a member
  *       404:
- *         description: Workspace not found
+ *         description: Not found
  */
 router.get('/:id', protect, getWorkspaceById);
 
@@ -85,13 +74,10 @@ router.get('/:id', protect, getWorkspaceById);
  *             type: object
  *             required: [inviteCode]
  *             properties:
- *               inviteCode: { type: string, example: a1b2c3d4 }
+ *               inviteCode: { type: string }
  *     responses:
  *       200:
  *         description: Joined workspace
- *         content:
- *           application/json:
- *             schema: { $ref: '#/components/schemas/Workspace' }
  *       404:
  *         description: Invalid invite code
  */

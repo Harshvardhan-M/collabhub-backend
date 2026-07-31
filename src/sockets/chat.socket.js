@@ -1,12 +1,27 @@
 const jwt = require('jsonwebtoken');
 const User = require('../models/User');
+const Workspace = require('../models/Workspace');
 const Message = require('../models/Message');
 const Channel = require('../models/Channel');
 const { resolveMentions } = require('../utils/mentions');
 const { createNotification } = require('../utils/notify');
 
+// Tracks how many active sockets each user has open (they may have multiple
+// tabs/devices connected). Status only flips to offline when the count hits 0.
+const activeConnections = new Map();
+
+const getWorkspaceRoomIds = async (userId) => {
+  const workspaces = await Workspace.find({ 'members.user': userId }).select('_id');
+  return workspaces.map((w) => w._id.toString());
+};
+
+const broadcastPresence = (io, workspaceIds, userId, status) => {
+  workspaceIds.forEach((id) => {
+    io.to(`workspace:${id}`).emit('presenceUpdate', { userId, status });
+  });
+};
+
 const initChatSocket = (io) => {
-  // Authenticate socket connections using the JWT sent from the client
   io.use(async (socket, next) => {
     try {
       const token = socket.handshake.auth?.token;
@@ -23,26 +38,35 @@ const initChatSocket = (io) => {
     }
   });
 
-  io.on('connection', (socket) => {
+  io.on('connection', async (socket) => {
     console.log(`Socket connected: ${socket.user.name} (${socket.id})`);
 
     // Personal room for direct notifications to this user
     socket.join(`user:${socket.user._id}`);
 
-    // Join a workspace's channel room
+    const userId = socket.user._id.toString();
+    const workspaceIds = await getWorkspaceRoomIds(socket.user._id);
+    workspaceIds.forEach((id) => socket.join(`workspace:${id}`));
+
+    const previousCount = activeConnections.get(userId) || 0;
+    activeConnections.set(userId, previousCount + 1);
+
+    if (previousCount === 0) {
+      await User.findByIdAndUpdate(userId, { status: 'online' });
+      broadcastPresence(io, workspaceIds, userId, 'online');
+    }
+
     socket.on('joinChannel', ({ workspaceId, channel = 'general' }) => {
       const room = `${workspaceId}:${channel}`;
       socket.join(room);
       socket.emit('joinedChannel', { room });
     });
 
-    // Leave a channel room
     socket.on('leaveChannel', ({ workspaceId, channel = 'general' }) => {
       const room = `${workspaceId}:${channel}`;
       socket.leave(room);
     });
 
-    // Handle a new chat message: validate channel, persist it, broadcast, notify mentions
     socket.on('sendMessage', async ({ workspaceId, channel = 'general', content }) => {
       try {
         if (!content || !content.trim()) return;
@@ -64,7 +88,6 @@ const initChatSocket = (io) => {
         const room = `${workspaceId}:${channel}`;
         io.to(room).emit('newMessage', populatedMessage);
 
-        // Notify any @mentioned workspace members in real time
         const mentionedUsers = await resolveMentions(content, workspaceId, socket.user._id);
         for (const mentionedUser of mentionedUsers) {
           await createNotification({
@@ -81,14 +104,23 @@ const initChatSocket = (io) => {
       }
     });
 
-    // Typing indicator
     socket.on('typing', ({ workspaceId, channel = 'general' }) => {
       const room = `${workspaceId}:${channel}`;
       socket.to(room).emit('userTyping', { userId: socket.user._id, name: socket.user.name });
     });
 
-    socket.on('disconnect', () => {
+    socket.on('disconnect', async () => {
       console.log(`Socket disconnected: ${socket.user.name} (${socket.id})`);
+
+      const remaining = (activeConnections.get(userId) || 1) - 1;
+
+      if (remaining <= 0) {
+        activeConnections.delete(userId);
+        await User.findByIdAndUpdate(userId, { status: 'offline' });
+        broadcastPresence(io, workspaceIds, userId, 'offline');
+      } else {
+        activeConnections.set(userId, remaining);
+      }
     });
   });
 };

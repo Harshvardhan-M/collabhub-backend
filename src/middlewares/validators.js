@@ -1,14 +1,10 @@
 const { body, validationResult } = require('express-validator');
 const AppError = require('../utils/AppError');
 
-// Runs after the rule chains below; collects errors into one clean response
 const validate = (req, res, next) => {
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
-    const message = errors
-      .array()
-      .map((e) => e.msg)
-      .join(', ');
+    const message = errors.array().map((e) => e.msg).join(', ');
     return next(new AppError(message, 400));
   }
   next();

@@ -32,9 +32,6 @@ const limiter = process.env.NODE_ENV === 'test' ? (req, res, next) => next() : a
  *             schema: { $ref: '#/components/schemas/AuthResponse' }
  *       400:
  *         description: Validation error or user already exists
- *         content:
- *           application/json:
- *             schema: { $ref: '#/components/schemas/Error' }
  */
 router.post('/register', limiter, registerValidation, registerUser);
 
@@ -63,9 +60,6 @@ router.post('/register', limiter, registerValidation, registerUser);
  *             schema: { $ref: '#/components/schemas/AuthResponse' }
  *       401:
  *         description: Invalid credentials
- *         content:
- *           application/json:
- *             schema: { $ref: '#/components/schemas/Error' }
  */
 router.post('/login', limiter, loginValidation, loginUser);
 

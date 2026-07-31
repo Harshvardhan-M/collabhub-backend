@@ -18,20 +18,9 @@ const { protect } = require('../middlewares/auth.middleware');
  *   put:
  *     summary: Update the logged-in user's profile
  *     tags: [Users]
- *     requestBody:
- *       content:
- *         application/json:
- *           schema:
- *             type: object
- *             properties:
- *               name: { type: string }
- *               avatar: { type: string }
  *     responses:
  *       200:
  *         description: Updated user
- *         content:
- *           application/json:
- *             schema: { $ref: '#/components/schemas/User' }
  */
 router.get('/me', protect, getMe);
 router.put('/me', protect, updateMe);

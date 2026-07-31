@@ -1,13 +1,14 @@
 # CollabHub
 
 A real-time collaboration platform backend — team chat, live notifications,
-and presence tracking, built with Node.js, Express, MongoDB, and Socket.IO.
+direct messages, and presence tracking, built with Node.js, Express, MongoDB, and Socket.IO.
 
 ## Planned Features
 - User authentication (JWT)
 - Workspaces & teams
 - Real-time chat (Socket.IO)
 - Live notifications
+- Direct messages
 - Role-based access control
 - Activity feed
 
@@ -22,6 +23,12 @@ Node.js, Express, MongoDB (Mongoose), Socket.IO, JWT
 npm install
 cp .env.example .env
 npm run dev
+```
+
+## Testing
+Integration tests use Jest + Supertest against an in-memory MongoDB (no real DB needed):
+```bash
+npm test
 ```
 
 ## API Docs
@@ -41,13 +48,16 @@ Interactive Swagger UI is available at `/api-docs` once the server is running
 | GET | `/api/workspaces` | Get all workspaces the user belongs to (protected) |
 | GET | `/api/workspaces/:id` | Get a single workspace by ID (protected) |
 | POST | `/api/workspaces/join` | Join a workspace via invite code (protected) |
+| POST | `/api/workspaces/:workspaceId/channels` | Create a channel in a workspace (protected) |
+| GET | `/api/workspaces/:workspaceId/channels` | List channels in a workspace (protected) |
+| DELETE | `/api/workspaces/:workspaceId/channels/:channelId` | Delete a channel (creator/admin only) (protected) |
 | GET | `/api/messages/:workspaceId?channel=general` | Get chat history for a channel (protected) |
 | GET | `/api/notifications` | Get logged-in user's notifications (protected) |
 | PUT | `/api/notifications/:id/read` | Mark one notification as read (protected) |
 | PUT | `/api/notifications/read-all` | Mark all notifications as read (protected) |
-| POST | `/api/workspaces/:workspaceId/channels` | Create a channel in a workspace (protected) |
-| GET | `/api/workspaces/:workspaceId/channels` | List channels in a workspace (protected) |
-| DELETE | `/api/workspaces/:workspaceId/channels/:channelId` | Delete a channel (creator/admin only) (protected) |
+| GET | `/api/dm/conversations` | List all DM conversations (protected) |
+| GET | `/api/dm/:userId` | Get DM history with a user (protected) |
+| POST | `/api/dm/:userId` | Send a direct message (protected) |
 
 ## Socket.IO Events
 | Event (client → server) | Payload | Description |
@@ -61,18 +71,13 @@ Interactive Swagger UI is available at `/api-docs` once the server is running
 |--------------------------|---------|--------------|
 | `newMessage` | message object | Broadcast when a message is sent |
 | `userTyping` | `{ userId, name }` | Someone is typing |
-| `newNotification` | notification object | Sent directly to a user (e.g. someone joined their workspace, or @mentioned them) |
+| `newNotification` | notification object | Sent directly to a user (workspace joins, mentions) |
+| `presenceUpdate` | `{ userId, status }` | A workspace member went online/offline |
 | `errorMessage` | `{ message }` | Something went wrong |
 
 Connect with a JWT: `io(url, { auth: { token: "<jwt>" } })`
 
 Mention a teammate in a message with `@firstname` (e.g. `"hey @priya check this"`) to trigger a real-time notification to them.
-
-## Testing
-Integration tests use Jest + Supertest against an in-memory MongoDB (no real DB needed):
-```bash
-npm test
-```
 
 ## Progress Log
 - **Day 1**: Project setup, Express server skeleton, health check endpoint
@@ -88,3 +93,5 @@ npm test
 - **Day 12**: Rate limiting (strict on `/api/auth`, general on all `/api` routes) to prevent brute-force/abuse, plus NoSQL injection sanitization on all incoming input
 - **Day 13**: Interactive API documentation with Swagger/OpenAPI, served at `/api-docs`, covering every route
 - **Day 14**: GitHub Actions CI — runs the test suite on Node 18.x & 20.x on every push/PR, plus a smoke test that boots the server and hits `/api/health`
+- **Day 15**: Direct messages (1:1) — `Conversation` + `DirectMessage` models, REST endpoints to list conversations, send, and fetch history
+- **Day 16**: Real-time presence tracking — a user's `status` (online/offline) updates automatically on socket connect/disconnect (multi-tab safe) and broadcasts to everyone in their workspaces

@@ -9,15 +9,12 @@ const PORT = process.env.PORT || 5000;
 const server = http.createServer(app);
 
 const io = new Server(server, {
-  cors: {
-    origin: process.env.CLIENT_URL || '*',
-  },
+  cors: { origin: process.env.CLIENT_URL || '*' },
 });
 
 initChatSocket(io);
 app.set('io', io);
 
-// Only connect to DB if MONGO_URI is set (so server can boot even without it on Day 1)
 if (process.env.MONGO_URI) {
   connectDB();
 } else {

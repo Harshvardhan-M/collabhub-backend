@@ -7,21 +7,12 @@ const options = {
       title: 'CollabHub API',
       version: '1.0.0',
       description:
-        'Real-time collaboration platform backend — workspaces, channels, chat, and notifications.',
+        'Real-time collaboration platform backend — workspaces, channels, chat, DMs, and notifications.',
     },
-    servers: [
-      {
-        url: '/api',
-        description: 'Base API path',
-      },
-    ],
+    servers: [{ url: '/api', description: 'Base API path' }],
     components: {
       securitySchemes: {
-        bearerAuth: {
-          type: 'http',
-          scheme: 'bearer',
-          bearerFormat: 'JWT',
-        },
+        bearerAuth: { type: 'http', scheme: 'bearer', bearerFormat: 'JWT' },
       },
       schemas: {
         User: {
@@ -95,7 +86,6 @@ const options = {
     },
     security: [{ bearerAuth: [] }],
   },
-  // Files containing JSDoc @openapi annotations
   apis: ['./src/routes/*.js'],
 };
 

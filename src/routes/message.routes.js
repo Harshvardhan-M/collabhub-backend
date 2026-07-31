@@ -19,9 +19,7 @@ const { protect } = require('../middlewares/auth.middleware');
  *         schema: { type: string, default: general }
  *     responses:
  *       200:
- *         description: List of messages (most recent 100)
- *       403:
- *         description: Not a member of this workspace
+ *         description: List of messages
  */
 router.get('/:workspaceId', protect, getMessages);
 

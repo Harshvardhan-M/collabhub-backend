@@ -6,8 +6,6 @@ const AppError = require('../utils/AppError');
 const checkMembership = (workspace, userId) =>
   workspace.members.some((m) => m.user.toString() === userId.toString());
 
-// @route  POST /api/workspaces/:workspaceId/channels
-// @desc   Create a new channel in a workspace
 exports.createChannel = asyncHandler(async (req, res, next) => {
   const { workspaceId } = req.params;
   const { name, description, isPrivate } = req.body;
@@ -30,8 +28,6 @@ exports.createChannel = asyncHandler(async (req, res, next) => {
   res.status(201).json(channel);
 });
 
-// @route  GET /api/workspaces/:workspaceId/channels
-// @desc   List all channels in a workspace
 exports.getChannels = asyncHandler(async (req, res, next) => {
   const { workspaceId } = req.params;
 
@@ -46,17 +42,13 @@ exports.getChannels = asyncHandler(async (req, res, next) => {
   res.status(200).json(channels);
 });
 
-// @route  DELETE /api/workspaces/:workspaceId/channels/:channelId
-// @desc   Delete a channel (creator or workspace admin only)
 exports.deleteChannel = asyncHandler(async (req, res, next) => {
   const { workspaceId, channelId } = req.params;
 
   const workspace = await Workspace.findById(workspaceId);
   if (!workspace) return next(new AppError('Workspace not found', 404));
 
-  const membership = workspace.members.find(
-    (m) => m.user.toString() === req.user._id.toString()
-  );
+  const membership = workspace.members.find((m) => m.user.toString() === req.user._id.toString());
   if (!membership) return next(new AppError('Not a member of this workspace', 403));
 
   const channel = await Channel.findOne({ _id: channelId, workspace: workspaceId });

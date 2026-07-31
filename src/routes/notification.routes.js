@@ -11,16 +11,11 @@ const { protect } = require('../middlewares/auth.middleware');
  * @openapi
  * /notifications:
  *   get:
- *     summary: Get logged-in user's notifications (most recent 50)
+ *     summary: Get logged-in user's notifications
  *     tags: [Notifications]
  *     responses:
  *       200:
  *         description: List of notifications
- *         content:
- *           application/json:
- *             schema:
- *               type: array
- *               items: { $ref: '#/components/schemas/Notification' }
  */
 router.get('/', protect, getNotifications);
 
@@ -32,7 +27,7 @@ router.get('/', protect, getNotifications);
  *     tags: [Notifications]
  *     responses:
  *       200:
- *         description: All notifications marked as read
+ *         description: All marked as read
  */
 router.put('/read-all', protect, markAllAsRead);
 
@@ -50,11 +45,8 @@ router.put('/read-all', protect, markAllAsRead);
  *     responses:
  *       200:
  *         description: Notification updated
- *         content:
- *           application/json:
- *             schema: { $ref: '#/components/schemas/Notification' }
  *       404:
- *         description: Notification not found
+ *         description: Not found
  */
 router.put('/:id/read', protect, markAsRead);
 

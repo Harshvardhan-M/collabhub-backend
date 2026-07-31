@@ -14,8 +14,6 @@ describe('Rate limiting (test-env bypass)', () => {
       const res = await request(app)
         .post('/api/auth/login')
         .send({ email: 'ratetest@example.com', password: 'wrongpassword' });
-
-      // Should always be 401 (bad creds), never 429 (rate limited) in test env
       expect(res.statusCode).toBe(401);
     }
   });

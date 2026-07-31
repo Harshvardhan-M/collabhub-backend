@@ -1,7 +1,5 @@
 const Notification = require('../models/Notification');
 
-// @route  GET /api/notifications
-// @desc   Get logged-in user's notifications (most recent first)
 exports.getNotifications = async (req, res) => {
   try {
     const notifications = await Notification.find({ recipient: req.user._id })
@@ -16,18 +14,10 @@ exports.getNotifications = async (req, res) => {
   }
 };
 
-// @route  PUT /api/notifications/:id/read
-// @desc   Mark a single notification as read
 exports.markAsRead = async (req, res) => {
   try {
-    const notification = await Notification.findOne({
-      _id: req.params.id,
-      recipient: req.user._id,
-    });
-
-    if (!notification) {
-      return res.status(404).json({ message: 'Notification not found' });
-    }
+    const notification = await Notification.findOne({ _id: req.params.id, recipient: req.user._id });
+    if (!notification) return res.status(404).json({ message: 'Notification not found' });
 
     notification.read = true;
     await notification.save();
@@ -38,8 +28,6 @@ exports.markAsRead = async (req, res) => {
   }
 };
 
-// @route  PUT /api/notifications/read-all
-// @desc   Mark all of the user's notifications as read
 exports.markAllAsRead = async (req, res) => {
   try {
     await Notification.updateMany(

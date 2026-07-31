@@ -5,15 +5,10 @@ const { createNotification } = require('../utils/notify');
 
 const generateInviteCode = () => crypto.randomBytes(4).toString('hex');
 
-// @route  POST /api/workspaces
-// @desc   Create a new workspace
 exports.createWorkspace = async (req, res) => {
   try {
     const { name, description } = req.body;
-
-    if (!name) {
-      return res.status(400).json({ message: 'Workspace name is required' });
-    }
+    if (!name) return res.status(400).json({ message: 'Workspace name is required' });
 
     const workspace = await Workspace.create({
       name,
@@ -23,7 +18,6 @@ exports.createWorkspace = async (req, res) => {
       inviteCode: generateInviteCode(),
     });
 
-    // Every workspace starts with a default #general channel
     await Channel.create({
       name: 'general',
       workspace: workspace._id,
@@ -36,8 +30,6 @@ exports.createWorkspace = async (req, res) => {
   }
 };
 
-// @route  GET /api/workspaces
-// @desc   Get all workspaces the logged-in user belongs to
 exports.getMyWorkspaces = async (req, res) => {
   try {
     const workspaces = await Workspace.find({ 'members.user': req.user._id })
@@ -50,24 +42,18 @@ exports.getMyWorkspaces = async (req, res) => {
   }
 };
 
-// @route  GET /api/workspaces/:id
-// @desc   Get a single workspace by ID
 exports.getWorkspaceById = async (req, res) => {
   try {
     const workspace = await Workspace.findById(req.params.id)
       .populate('owner', 'name email')
       .populate('members.user', 'name email avatar status');
 
-    if (!workspace) {
-      return res.status(404).json({ message: 'Workspace not found' });
-    }
+    if (!workspace) return res.status(404).json({ message: 'Workspace not found' });
 
     const isMember = workspace.members.some(
       (m) => m.user._id.toString() === req.user._id.toString()
     );
-    if (!isMember) {
-      return res.status(403).json({ message: 'Not a member of this workspace' });
-    }
+    if (!isMember) return res.status(403).json({ message: 'Not a member of this workspace' });
 
     res.status(200).json(workspace);
   } catch (err) {
@@ -75,16 +61,12 @@ exports.getWorkspaceById = async (req, res) => {
   }
 };
 
-// @route  POST /api/workspaces/join
-// @desc   Join a workspace using an invite code
 exports.joinWorkspace = async (req, res) => {
   try {
     const { inviteCode } = req.body;
 
     const workspace = await Workspace.findOne({ inviteCode });
-    if (!workspace) {
-      return res.status(404).json({ message: 'Invalid invite code' });
-    }
+    if (!workspace) return res.status(404).json({ message: 'Invalid invite code' });
 
     const alreadyMember = workspace.members.some(
       (m) => m.user.toString() === req.user._id.toString()

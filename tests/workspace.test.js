@@ -3,12 +3,7 @@ require('./setup');
 const app = require('../src/app');
 
 describe('Workspace API', () => {
-  const testUser = {
-    name: 'Workspace Owner',
-    email: 'owner@example.com',
-    password: 'password123',
-  };
-
+  const testUser = { name: 'Workspace Owner', email: 'owner@example.com', password: 'password123' };
   let token;
 
   beforeEach(async () => {
@@ -17,10 +12,7 @@ describe('Workspace API', () => {
   });
 
   it('rejects workspace creation without a token', async () => {
-    const res = await request(app)
-      .post('/api/workspaces')
-      .send({ name: 'No Auth Workspace' });
-
+    const res = await request(app).post('/api/workspaces').send({ name: 'No Auth Workspace' });
     expect(res.statusCode).toBe(401);
   });
 
@@ -47,7 +39,6 @@ describe('Workspace API', () => {
       .post('/api/workspaces')
       .set('Authorization', `Bearer ${token}`)
       .send({ name: '' });
-
     expect(res.statusCode).toBe(400);
   });
 
@@ -57,10 +48,7 @@ describe('Workspace API', () => {
       .set('Authorization', `Bearer ${token}`)
       .send({ name: 'Team Alpha' });
 
-    const res = await request(app)
-      .get('/api/workspaces')
-      .set('Authorization', `Bearer ${token}`);
-
+    const res = await request(app).get('/api/workspaces').set('Authorization', `Bearer ${token}`);
     expect(res.statusCode).toBe(200);
     expect(res.body.length).toBe(1);
     expect(res.body[0].name).toBe('Team Alpha');

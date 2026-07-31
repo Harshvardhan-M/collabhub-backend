@@ -8,13 +8,7 @@
     "dev": "nodemon server.js",
     "test": "jest --runInBand"
   },
-  "keywords": [
-    "nodejs",
-    "express",
-    "mongodb",
-    "socketio",
-    "backend"
-  ],
+  "keywords": ["nodejs", "express", "mongodb", "socketio", "backend"],
   "license": "MIT",
   "dependencies": {
     "bcryptjs": "^2.4.3",

@@ -12,6 +12,7 @@ const userRoutes = require('./routes/user.routes');
 const workspaceRoutes = require('./routes/workspace.routes');
 const messageRoutes = require('./routes/message.routes');
 const notificationRoutes = require('./routes/notification.routes');
+const dmRoutes = require('./routes/dm.routes');
 const { errorHandler, notFound } = require('./middlewares/error.middleware');
 const { apiLimiter } = require('./middlewares/rateLimiter');
 
@@ -23,13 +24,11 @@ app.use(express.json());
 app.use(mongoSanitize());
 app.use(morgan('dev'));
 
-// Skip rate limiting in tests — repeated fast requests would otherwise trip the limiter
 if (process.env.NODE_ENV !== 'test') {
   app.use('/api', apiLimiter);
 }
 
-// Interactive API docs — relax helmet's CSP just for this route so Swagger UI's
-// inline styles/scripts aren't blocked
+// Interactive API docs — relax helmet's CSP just for this route so Swagger UI renders
 app.use(
   '/api-docs',
   helmet({ contentSecurityPolicy: false }),
@@ -43,12 +42,12 @@ app.use('/api/users', userRoutes);
 app.use('/api/workspaces', workspaceRoutes);
 app.use('/api/messages', messageRoutes);
 app.use('/api/notifications', notificationRoutes);
+app.use('/api/dm', dmRoutes);
 
 app.get('/', (req, res) => {
   res.json({ message: 'CollabHub API is running' });
 });
 
-// 404 handler for unmatched routes, then the global error handler — must be last
 app.use(notFound);
 app.use(errorHandler);
 
