@@ -65,11 +65,15 @@ Interactive Swagger UI is available at `/api-docs` once the server is running
 | `joinChannel` | `{ workspaceId, channel }` | Join a workspace channel room |
 | `leaveChannel` | `{ workspaceId, channel }` | Leave a channel room |
 | `sendMessage` | `{ workspaceId, channel, content }` | Send & persist a chat message |
+| `editMessage` | `{ messageId, content }` | Edit your own message |
+| `deleteMessage` | `{ messageId }` | Soft-delete your own message |
 | `typing` | `{ workspaceId, channel }` | Notify others user is typing |
 
 | Event (server → client) | Payload | Description |
 |--------------------------|---------|--------------|
 | `newMessage` | message object | Broadcast when a message is sent |
+| `messageEdited` | message object | Broadcast when a message is edited |
+| `messageDeleted` | `{ _id, channel }` | Broadcast when a message is deleted |
 | `userTyping` | `{ userId, name }` | Someone is typing |
 | `newNotification` | notification object | Sent directly to a user (workspace joins, mentions) |
 | `presenceUpdate` | `{ userId, status }` | A workspace member went online/offline |
@@ -95,3 +99,4 @@ Mention a teammate in a message with `@firstname` (e.g. `"hey @priya check this"
 - **Day 14**: GitHub Actions CI — runs the test suite on Node 18.x & 20.x on every push/PR, plus a smoke test that boots the server and hits `/api/health`
 - **Day 15**: Direct messages (1:1) — `Conversation` + `DirectMessage` models, REST endpoints to list conversations, send, and fetch history
 - **Day 16**: Real-time presence tracking — a user's `status` (online/offline) updates automatically on socket connect/disconnect (multi-tab safe) and broadcasts to everyone in their workspaces
+- **Day 17**: Message editing & soft-deletion — sender-only `editMessage`/`deleteMessage` socket events, `edited`/`deleted` flags on the `Message` model, broadcast to the whole channel

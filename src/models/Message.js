@@ -6,6 +6,8 @@ const messageSchema = new mongoose.Schema(
     sender: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
     content: { type: String, required: [true, 'Message content is required'], trim: true },
     channel: { type: String, default: 'general' },
+    edited: { type: Boolean, default: false },
+    deleted: { type: Boolean, default: false },
   },
   { timestamps: true }
 );

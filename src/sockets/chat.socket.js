@@ -109,6 +109,54 @@ const initChatSocket = (io) => {
       socket.to(room).emit('userTyping', { userId: socket.user._id, name: socket.user.name });
     });
 
+    socket.on('editMessage', async ({ messageId, content }) => {
+      try {
+        if (!content || !content.trim()) return;
+
+        const message = await Message.findById(messageId);
+        if (!message) {
+          return socket.emit('errorMessage', { message: 'Message not found' });
+        }
+        if (message.sender.toString() !== socket.user._id.toString()) {
+          return socket.emit('errorMessage', { message: 'Not authorized to edit this message' });
+        }
+        if (message.deleted) {
+          return socket.emit('errorMessage', { message: 'Cannot edit a deleted message' });
+        }
+
+        message.content = content.trim();
+        message.edited = true;
+        await message.save();
+
+        const populatedMessage = await message.populate('sender', 'name avatar');
+        const room = `${message.workspace}:${message.channel}`;
+        io.to(room).emit('messageEdited', populatedMessage);
+      } catch (err) {
+        socket.emit('errorMessage', { message: 'Failed to edit message', error: err.message });
+      }
+    });
+
+    socket.on('deleteMessage', async ({ messageId }) => {
+      try {
+        const message = await Message.findById(messageId);
+        if (!message) {
+          return socket.emit('errorMessage', { message: 'Message not found' });
+        }
+        if (message.sender.toString() !== socket.user._id.toString()) {
+          return socket.emit('errorMessage', { message: 'Not authorized to delete this message' });
+        }
+
+        message.deleted = true;
+        message.content = '[message deleted]';
+        await message.save();
+
+        const room = `${message.workspace}:${message.channel}`;
+        io.to(room).emit('messageDeleted', { _id: message._id, channel: message.channel });
+      } catch (err) {
+        socket.emit('errorMessage', { message: 'Failed to delete message', error: err.message });
+      }
+    });
+
     socket.on('disconnect', async () => {
       console.log(`Socket disconnected: ${socket.user.name} (${socket.id})`);
 
