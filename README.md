@@ -25,6 +25,12 @@ cp .env.example .env
 npm run dev
 ```
 
+## Code Quality
+```bash
+npm run lint    # check for issues
+npm run format  # auto-format with Prettier
+```
+
 ## Testing
 Integration tests use Jest + Supertest against an in-memory MongoDB (no real DB needed):
 ```bash
@@ -85,6 +91,7 @@ Mention a teammate in a message with `@firstname` (e.g. `"hey @priya check this"
 
 ## Progress Log
 - **Day 1**: Project setup, Express server skeleton, health check endpoint
+- **Day 2**: Code quality tooling — ESLint + Prettier configured, `npm run lint` / `npm run format` scripts, linting added as a CI step
 - **Day 3**: User model with password hashing (bcrypt), JWT-based register & login endpoints
 - **Day 4**: Auth middleware (`protect`) to guard private routes, profile get/update endpoints
 - **Day 5**: Workspace model, create/join/list workspaces, invite-code-based membership
