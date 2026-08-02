@@ -30,9 +30,16 @@ router.get('/conversations', protect, getConversations);
  *         name: userId
  *         required: true
  *         schema: { type: string }
+ *       - in: query
+ *         name: limit
+ *         schema: { type: integer, default: 30, maximum: 100 }
+ *       - in: query
+ *         name: before
+ *         schema: { type: string }
+ *         description: Message ID to paginate backwards (older) from
  *     responses:
  *       200:
- *         description: List of messages (empty array if no conversation exists yet)
+ *         description: Paginated messages — { messages, hasMore, nextCursor }
  *   post:
  *     summary: Send a direct message to another user
  *     tags: [Direct Messages]

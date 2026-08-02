@@ -51,12 +51,12 @@ Interactive Swagger UI is available at `/api-docs` once the server is running
 | POST | `/api/workspaces/:workspaceId/channels` | Create a channel in a workspace (protected) |
 | GET | `/api/workspaces/:workspaceId/channels` | List channels in a workspace (protected) |
 | DELETE | `/api/workspaces/:workspaceId/channels/:channelId` | Delete a channel (creator/admin only) (protected) |
-| GET | `/api/messages/:workspaceId?channel=general` | Get chat history for a channel (protected) |
-| GET | `/api/notifications` | Get logged-in user's notifications (protected) |
+| GET | `/api/messages/:workspaceId?channel=general&limit=30&before=<id>` | Get paginated chat history for a channel (protected) |
+| GET | `/api/notifications?limit=20&before=<id>` | Get paginated notifications (protected) |
 | PUT | `/api/notifications/:id/read` | Mark one notification as read (protected) |
 | PUT | `/api/notifications/read-all` | Mark all notifications as read (protected) |
 | GET | `/api/dm/conversations` | List all DM conversations (protected) |
-| GET | `/api/dm/:userId` | Get DM history with a user (protected) |
+| GET | `/api/dm/:userId?limit=30&before=<id>` | Get paginated DM history with a user (protected) |
 | POST | `/api/dm/:userId` | Send a direct message (protected) |
 
 ## Socket.IO Events
@@ -100,3 +100,4 @@ Mention a teammate in a message with `@firstname` (e.g. `"hey @priya check this"
 - **Day 15**: Direct messages (1:1) — `Conversation` + `DirectMessage` models, REST endpoints to list conversations, send, and fetch history
 - **Day 16**: Real-time presence tracking — a user's `status` (online/offline) updates automatically on socket connect/disconnect (multi-tab safe) and broadcasts to everyone in their workspaces
 - **Day 17**: Message editing & soft-deletion — sender-only `editMessage`/`deleteMessage` socket events, `edited`/`deleted` flags on the `Message` model, broadcast to the whole channel
+- **Day 18**: Cursor-based pagination on message history, DM history, and notifications (`?limit=&before=`), returning `{ items, hasMore, nextCursor }` instead of a flat capped list

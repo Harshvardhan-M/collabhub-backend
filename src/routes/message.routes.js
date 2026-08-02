@@ -17,9 +17,16 @@ const { protect } = require('../middlewares/auth.middleware');
  *       - in: query
  *         name: channel
  *         schema: { type: string, default: general }
+ *       - in: query
+ *         name: limit
+ *         schema: { type: integer, default: 30, maximum: 100 }
+ *       - in: query
+ *         name: before
+ *         schema: { type: string }
+ *         description: Message ID to paginate backwards (older) from
  *     responses:
  *       200:
- *         description: List of messages
+ *         description: Paginated messages — { messages, hasMore, nextCursor }
  */
 router.get('/:workspaceId', protect, getMessages);
 

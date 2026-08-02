@@ -54,19 +54,35 @@ exports.sendDirectMessage = asyncHandler(async (req, res, next) => {
 
 exports.getConversationHistory = asyncHandler(async (req, res) => {
   const { userId } = req.params;
+  const limit = Math.min(parseInt(req.query.limit, 10) || 30, 100);
+  const { before } = req.query;
 
   const conversation = await Conversation.findOne({
     participants: { $all: [req.user._id, userId], $size: 2 },
   });
 
   if (!conversation) {
-    return res.status(200).json([]);
+    return res.status(200).json({ messages: [], hasMore: false, nextCursor: null });
   }
 
-  const messages = await DirectMessage.find({ conversation: conversation._id })
-    .populate('sender', 'name avatar')
-    .sort({ createdAt: 1 })
-    .limit(100);
+  const query = { conversation: conversation._id };
+  if (before) {
+    const cursorMessage = await DirectMessage.findById(before);
+    if (cursorMessage) {
+      query.createdAt = { $lt: cursorMessage.createdAt };
+    }
+  }
 
-  res.status(200).json(messages);
+  const messages = await DirectMessage.find(query)
+    .populate('sender', 'name avatar')
+    .sort({ createdAt: -1 })
+    .limit(limit);
+
+  const hasMore = messages.length === limit;
+
+  res.status(200).json({
+    messages: messages.reverse(),
+    hasMore,
+    nextCursor: hasMore ? messages[0]._id : null,
+  });
 });

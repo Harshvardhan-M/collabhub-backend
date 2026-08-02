@@ -13,9 +13,17 @@ const { protect } = require('../middlewares/auth.middleware');
  *   get:
  *     summary: Get logged-in user's notifications
  *     tags: [Notifications]
+ *     parameters:
+ *       - in: query
+ *         name: limit
+ *         schema: { type: integer, default: 20, maximum: 50 }
+ *       - in: query
+ *         name: before
+ *         schema: { type: string }
+ *         description: Notification ID to paginate backwards (older) from
  *     responses:
  *       200:
- *         description: List of notifications
+ *         description: Paginated notifications — { notifications, hasMore, nextCursor }
  */
 router.get('/', protect, getNotifications);
 
