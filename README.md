@@ -54,6 +54,8 @@ Interactive Swagger UI is available at `/api-docs` once the server is running
 | GET | `/api/workspaces` | Get all workspaces the user belongs to (protected) |
 | GET | `/api/workspaces/:id` | Get a single workspace by ID (protected) |
 | POST | `/api/workspaces/join` | Join a workspace via invite code (protected) |
+| PUT | `/api/workspaces/:id/members/:userId/role` | Promote/demote a member — admin only (protected) |
+| DELETE | `/api/workspaces/:id/members/:userId` | Remove a member — admin, or self-removal (protected) |
 | POST | `/api/workspaces/:workspaceId/channels` | Create a channel in a workspace (protected) |
 | GET | `/api/workspaces/:workspaceId/channels` | List channels in a workspace (protected) |
 | DELETE | `/api/workspaces/:workspaceId/channels/:channelId` | Delete a channel (creator/admin only) (protected) |
@@ -108,3 +110,4 @@ Mention a teammate in a message with `@firstname` (e.g. `"hey @priya check this"
 - **Day 16**: Real-time presence tracking — a user's `status` (online/offline) updates automatically on socket connect/disconnect (multi-tab safe) and broadcasts to everyone in their workspaces
 - **Day 17**: Message editing & soft-deletion — sender-only `editMessage`/`deleteMessage` socket events, `edited`/`deleted` flags on the `Message` model, broadcast to the whole channel
 - **Day 18**: Cursor-based pagination on message history, DM history, and notifications (`?limit=&before=`), returning `{ items, hasMore, nextCursor }` instead of a flat capped list
+- **Day 19**: Workspace member management — admin-only promote/demote, admin (or self) removal, with the owner protected from being demoted or removed; covered by new tests

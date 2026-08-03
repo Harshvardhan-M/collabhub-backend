@@ -2,6 +2,8 @@ const crypto = require('crypto');
 const Workspace = require('../models/Workspace');
 const Channel = require('../models/Channel');
 const { createNotification } = require('../utils/notify');
+const asyncHandler = require('../utils/asyncHandler');
+const AppError = require('../utils/AppError');
 
 const generateInviteCode = () => crypto.randomBytes(4).toString('hex');
 
@@ -92,3 +94,66 @@ exports.joinWorkspace = async (req, res) => {
     res.status(500).json({ message: 'Server error', error: err.message });
   }
 };
+
+// @route  PUT /api/workspaces/:id/members/:userId/role
+// @desc   Promote or demote a member (admin only)
+exports.updateMemberRole = asyncHandler(async (req, res, next) => {
+  const { id, userId } = req.params;
+  const { role } = req.body;
+
+  if (!['admin', 'member'].includes(role)) {
+    return next(new AppError('Role must be "admin" or "member"', 400));
+  }
+
+  const workspace = await Workspace.findById(id);
+  if (!workspace) return next(new AppError('Workspace not found', 404));
+
+  const requester = workspace.members.find((m) => m.user.toString() === req.user._id.toString());
+  if (!requester || requester.role !== 'admin') {
+    return next(new AppError('Only admins can change member roles', 403));
+  }
+
+  if (userId === workspace.owner.toString()) {
+    return next(new AppError("Cannot change the workspace owner's role", 400));
+  }
+
+  const targetMember = workspace.members.find((m) => m.user.toString() === userId);
+  if (!targetMember) return next(new AppError('User is not a member of this workspace', 404));
+
+  targetMember.role = role;
+  await workspace.save();
+
+  res.status(200).json({ message: `Member role updated to ${role}`, member: targetMember });
+});
+
+// @route  DELETE /api/workspaces/:id/members/:userId
+// @desc   Remove a member from a workspace (admin only, or a member removing themselves)
+exports.removeMember = asyncHandler(async (req, res, next) => {
+  const { id, userId } = req.params;
+
+  const workspace = await Workspace.findById(id);
+  if (!workspace) return next(new AppError('Workspace not found', 404));
+
+  if (userId === workspace.owner.toString()) {
+    return next(
+      new AppError('The workspace owner cannot be removed. Delete the workspace instead.', 400)
+    );
+  }
+
+  const requester = workspace.members.find((m) => m.user.toString() === req.user._id.toString());
+  if (!requester) return next(new AppError('Not a member of this workspace', 403));
+
+  const isSelf = userId === req.user._id.toString();
+  const isAdmin = requester.role === 'admin';
+  if (!isSelf && !isAdmin) {
+    return next(new AppError('Only admins can remove other members', 403));
+  }
+
+  const memberExists = workspace.members.some((m) => m.user.toString() === userId);
+  if (!memberExists) return next(new AppError('User is not a member of this workspace', 404));
+
+  workspace.members = workspace.members.filter((m) => m.user.toString() !== userId);
+  await workspace.save();
+
+  res.status(200).json({ message: 'Member removed from workspace' });
+});
