@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const { getMessages } = require('../controllers/message.controller');
+const { getMessages, searchMessages } = require('../controllers/message.controller');
 const { protect } = require('../middlewares/auth.middleware');
 
 /**
@@ -29,5 +29,35 @@ const { protect } = require('../middlewares/auth.middleware');
  *         description: Paginated messages — { messages, hasMore, nextCursor }
  */
 router.get('/:workspaceId', protect, getMessages);
+
+/**
+ * @openapi
+ * /messages/{workspaceId}/search:
+ *   get:
+ *     summary: Full-text search messages within a workspace
+ *     tags: [Messages]
+ *     parameters:
+ *       - in: path
+ *         name: workspaceId
+ *         required: true
+ *         schema: { type: string }
+ *       - in: query
+ *         name: q
+ *         required: true
+ *         schema: { type: string }
+ *       - in: query
+ *         name: channel
+ *         schema: { type: string }
+ *         description: Optionally scope the search to one channel
+ *       - in: query
+ *         name: limit
+ *         schema: { type: integer, default: 20, maximum: 50 }
+ *     responses:
+ *       200:
+ *         description: Matching messages, ranked by relevance
+ *       400:
+ *         description: Missing query
+ */
+router.get('/:workspaceId/search', protect, searchMessages);
 
 module.exports = router;

@@ -50,6 +50,7 @@ Interactive Swagger UI is available at `/api-docs` once the server is running
 | POST | `/api/auth/login` | Login and receive JWT |
 | GET | `/api/users/me` | Get logged-in user's profile (protected) |
 | PUT | `/api/users/me` | Update logged-in user's profile (protected) |
+| GET | `/api/users/search?q=&limit=` | Search users by name/email — e.g. to start a DM (protected) |
 | POST | `/api/workspaces` | Create a new workspace (protected) |
 | GET | `/api/workspaces` | Get all workspaces the user belongs to (protected) |
 | GET | `/api/workspaces/:id` | Get a single workspace by ID (protected) |
@@ -60,6 +61,7 @@ Interactive Swagger UI is available at `/api-docs` once the server is running
 | GET | `/api/workspaces/:workspaceId/channels` | List channels in a workspace (protected) |
 | DELETE | `/api/workspaces/:workspaceId/channels/:channelId` | Delete a channel (creator/admin only) (protected) |
 | GET | `/api/messages/:workspaceId?channel=general&limit=30&before=<id>` | Get paginated chat history for a channel (protected) |
+| GET | `/api/messages/:workspaceId/search?q=&channel=&limit=` | Full-text search messages in a workspace (protected) |
 | GET | `/api/notifications?limit=20&before=<id>` | Get paginated notifications (protected) |
 | PUT | `/api/notifications/:id/read` | Mark one notification as read (protected) |
 | PUT | `/api/notifications/read-all` | Mark all notifications as read (protected) |
@@ -111,3 +113,4 @@ Mention a teammate in a message with `@firstname` (e.g. `"hey @priya check this"
 - **Day 17**: Message editing & soft-deletion — sender-only `editMessage`/`deleteMessage` socket events, `edited`/`deleted` flags on the `Message` model, broadcast to the whole channel
 - **Day 18**: Cursor-based pagination on message history, DM history, and notifications (`?limit=&before=`), returning `{ items, hasMore, nextCursor }` instead of a flat capped list
 - **Day 19**: Workspace member management — admin-only promote/demote, admin (or self) removal, with the owner protected from being demoted or removed; covered by new tests
+- **Day 20**: Search — full-text message search within a workspace (MongoDB text index, relevance-ranked, optionally scoped to a channel) and user search by name/email (regex-escaped, for finding people to DM)
