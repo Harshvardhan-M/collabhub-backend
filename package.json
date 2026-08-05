@@ -8,7 +8,9 @@
     "dev": "nodemon server.js",
     "test": "jest --runInBand",
     "lint": "eslint . --ext .js",
-    "format": "prettier --write ."
+    "format": "prettier --write .",
+    "docker:up": "docker compose up --build",
+    "docker:down": "docker compose down"
   },
   "keywords": ["nodejs", "express", "mongodb", "socketio", "backend"],
   "license": "MIT",

@@ -25,6 +25,16 @@ cp .env.example .env
 npm run dev
 ```
 
+## Run with Docker
+No local Node.js or MongoDB install needed — this spins up the API and MongoDB together:
+```bash
+npm run docker:up    # or: docker compose up --build
+```
+The API will be live at `http://localhost:5000`. Stop everything with:
+```bash
+npm run docker:down
+```
+
 ## Code Quality
 ```bash
 npm run lint    # check for issues
@@ -114,3 +124,4 @@ Mention a teammate in a message with `@firstname` (e.g. `"hey @priya check this"
 - **Day 18**: Cursor-based pagination on message history, DM history, and notifications (`?limit=&before=`), returning `{ items, hasMore, nextCursor }` instead of a flat capped list
 - **Day 19**: Workspace member management — admin-only promote/demote, admin (or self) removal, with the owner protected from being demoted or removed; covered by new tests
 - **Day 20**: Search — full-text message search within a workspace (MongoDB text index, relevance-ranked, optionally scoped to a channel) and user search by name/email (regex-escaped, for finding people to DM)
+- **Day 21**: Docker support — multi-stage `Dockerfile` (non-root user), `docker-compose.yml` running the API alongside MongoDB, `npm run docker:up`/`docker:down`, and a CI job that verifies the image builds on every push
