@@ -1,4 +1,8 @@
 require('dotenv').config();
+const validateEnv = require('./src/config/validateEnv');
+
+validateEnv();
+
 const http = require('http');
 const { Server } = require('socket.io');
 const app = require('./src/app');
