@@ -57,3 +57,18 @@ exports.markAllAsRead = async (req, res) => {
     res.status(500).json({ message: 'Server error', error: err.message });
   }
 };
+
+// @route  GET /api/notifications/unread-count
+// @desc   Total number of unread notifications
+exports.getUnreadCount = async (req, res) => {
+  try {
+    const unreadCount = await Notification.countDocuments({
+      recipient: req.user._id,
+      read: false,
+    });
+
+    res.status(200).json({ unreadCount });
+  } catch (err) {
+    res.status(500).json({ message: 'Server error', error: err.message });
+  }
+};

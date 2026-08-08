@@ -4,6 +4,7 @@ const {
   getNotifications,
   markAsRead,
   markAllAsRead,
+  getUnreadCount,
 } = require('../controllers/notification.controller');
 const { protect } = require('../middlewares/auth.middleware');
 
@@ -26,6 +27,18 @@ const { protect } = require('../middlewares/auth.middleware');
  *         description: Paginated notifications — { notifications, hasMore, nextCursor }
  */
 router.get('/', protect, getNotifications);
+
+/**
+ * @openapi
+ * /notifications/unread-count:
+ *   get:
+ *     summary: Get the total number of unread notifications
+ *     tags: [Notifications]
+ *     responses:
+ *       200:
+ *         description: '{ unreadCount }'
+ */
+router.get('/unread-count', protect, getUnreadCount);
 
 /**
  * @openapi

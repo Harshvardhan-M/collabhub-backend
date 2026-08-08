@@ -75,11 +75,14 @@ Interactive Swagger UI is available at `/api-docs` once the server is running
 | GET | `/api/messages/:workspaceId?channel=general&limit=30&before=<id>` | Get paginated chat history for a channel (protected) |
 | GET | `/api/messages/:workspaceId/search?q=&channel=&limit=` | Full-text search messages in a workspace (protected) |
 | GET | `/api/notifications?limit=20&before=<id>` | Get paginated notifications (protected) |
+| GET | `/api/notifications/unread-count` | Get total unread notification count (protected) |
 | PUT | `/api/notifications/:id/read` | Mark one notification as read (protected) |
 | PUT | `/api/notifications/read-all` | Mark all notifications as read (protected) |
-| GET | `/api/dm/conversations` | List all DM conversations (protected) |
-| GET | `/api/dm/:userId?limit=30&before=<id>` | Get paginated DM history with a user (protected) |
+| GET | `/api/dm/conversations` | List all DM conversations, each with `unreadCount` (protected) |
+| GET | `/api/dm/unread-count` | Get total unread DM count across all conversations (protected) |
+| GET | `/api/dm/:userId?limit=30&before=<id>` | Get paginated DM history with a user — marks their messages as read (protected) |
 | POST | `/api/dm/:userId` | Send a direct message (protected) |
+| PUT | `/api/dm/:userId/read` | Explicitly mark a conversation as read (protected) |
 
 ## Socket.IO Events
 | Event (client → server) | Payload | Description |
@@ -128,3 +131,4 @@ Mention a teammate in a message with `@firstname` (e.g. `"hey @priya check this"
 - **Day 20**: Search — full-text message search within a workspace (MongoDB text index, relevance-ranked, optionally scoped to a channel) and user search by name/email (regex-escaped, for finding people to DM)
 - **Day 21**: Docker support — multi-stage `Dockerfile` (non-root user), `docker-compose.yml` running the API alongside MongoDB, `npm run docker:up`/`docker:down`, and a CI job that verifies the image builds on every push
 - **Day 22**: Startup environment validation — the server now checks required vars (`JWT_SECRET`, and `MONGO_URI` in production) and exits with a clear error instead of failing confusingly later, plus warnings for a weak `JWT_SECRET` or missing `CLIENT_URL` in production
+- **Day 23**: Unread counts & read receipts — DM conversations now report `unreadCount`, viewing a conversation marks it read, plus `/api/dm/unread-count` and `/api/notifications/unread-count` endpoints; covered by new tests

@@ -4,6 +4,8 @@ const {
   getConversations,
   sendDirectMessage,
   getConversationHistory,
+  markConversationRead,
+  getUnreadCount,
 } = require('../controllers/dm.controller');
 const { protect } = require('../middlewares/auth.middleware');
 
@@ -11,7 +13,7 @@ const { protect } = require('../middlewares/auth.middleware');
  * @openapi
  * /dm/conversations:
  *   get:
- *     summary: List all DM conversations for the logged-in user
+ *     summary: List all DM conversations for the logged-in user (includes unreadCount per conversation)
  *     tags: [Direct Messages]
  *     responses:
  *       200:
@@ -21,9 +23,21 @@ router.get('/conversations', protect, getConversations);
 
 /**
  * @openapi
+ * /dm/unread-count:
+ *   get:
+ *     summary: Get the total number of unread direct messages
+ *     tags: [Direct Messages]
+ *     responses:
+ *       200:
+ *         description: '{ unreadCount }'
+ */
+router.get('/unread-count', protect, getUnreadCount);
+
+/**
+ * @openapi
  * /dm/{userId}:
  *   get:
- *     summary: Get direct message history with another user
+ *     summary: Get direct message history with another user (marks their messages as read)
  *     tags: [Direct Messages]
  *     parameters:
  *       - in: path
@@ -65,5 +79,22 @@ router.get('/conversations', protect, getConversations);
  */
 router.get('/:userId', protect, getConversationHistory);
 router.post('/:userId', protect, sendDirectMessage);
+
+/**
+ * @openapi
+ * /dm/{userId}/read:
+ *   put:
+ *     summary: Explicitly mark all messages from a user as read
+ *     tags: [Direct Messages]
+ *     parameters:
+ *       - in: path
+ *         name: userId
+ *         required: true
+ *         schema: { type: string }
+ *     responses:
+ *       200:
+ *         description: Conversation marked as read
+ */
+router.put('/:userId/read', protect, markConversationRead);
 
 module.exports = router;
