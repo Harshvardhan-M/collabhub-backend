@@ -1,6 +1,11 @@
 const express = require('express');
 const router = express.Router({ mergeParams: true });
-const { createChannel, getChannels, deleteChannel } = require('../controllers/channel.controller');
+const {
+  createChannel,
+  getChannels,
+  deleteChannel,
+  markChannelRead,
+} = require('../controllers/channel.controller');
 const { protect } = require('../middlewares/auth.middleware');
 
 /**
@@ -18,7 +23,7 @@ const { protect } = require('../middlewares/auth.middleware');
  *       201:
  *         description: Channel created
  *   get:
- *     summary: List channels in a workspace
+ *     summary: List channels in a workspace (each with an unreadCount for the current user)
  *     tags: [Channels]
  *     parameters:
  *       - in: path
@@ -54,5 +59,27 @@ router.get('/', protect, getChannels);
  *         description: Not authorized
  */
 router.delete('/:channelId', protect, deleteChannel);
+
+/**
+ * @openapi
+ * /workspaces/{workspaceId}/channels/{channelName}/read:
+ *   put:
+ *     summary: Mark a channel as read (up to now) for the current user
+ *     tags: [Channels]
+ *     parameters:
+ *       - in: path
+ *         name: workspaceId
+ *         required: true
+ *         schema: { type: string }
+ *       - in: path
+ *         name: channelName
+ *         required: true
+ *         schema: { type: string }
+ *         description: Channel name, e.g. "general"
+ *     responses:
+ *       200:
+ *         description: Channel marked as read
+ */
+router.put('/:channelName/read', protect, markChannelRead);
 
 module.exports = router;

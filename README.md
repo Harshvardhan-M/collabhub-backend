@@ -70,8 +70,9 @@ Interactive Swagger UI is available at `/api-docs` once the server is running
 | PUT | `/api/workspaces/:id/members/:userId/role` | Promote/demote a member — admin only (protected) |
 | DELETE | `/api/workspaces/:id/members/:userId` | Remove a member — admin, or self-removal (protected) |
 | POST | `/api/workspaces/:workspaceId/channels` | Create a channel in a workspace (protected) |
-| GET | `/api/workspaces/:workspaceId/channels` | List channels in a workspace (protected) |
+| GET | `/api/workspaces/:workspaceId/channels` | List channels in a workspace, each with `unreadCount` (protected) |
 | DELETE | `/api/workspaces/:workspaceId/channels/:channelId` | Delete a channel (creator/admin only) (protected) |
+| PUT | `/api/workspaces/:workspaceId/channels/:channelName/read` | Mark a channel as read (protected) |
 | GET | `/api/messages/:workspaceId?channel=general&limit=30&before=<id>` | Get paginated chat history for a channel (protected) |
 | GET | `/api/messages/:workspaceId/search?q=&channel=&limit=` | Full-text search messages in a workspace (protected) |
 | GET | `/api/notifications?limit=20&before=<id>` | Get paginated notifications (protected) |
@@ -132,3 +133,4 @@ Mention a teammate in a message with `@firstname` (e.g. `"hey @priya check this"
 - **Day 21**: Docker support — multi-stage `Dockerfile` (non-root user), `docker-compose.yml` running the API alongside MongoDB, `npm run docker:up`/`docker:down`, and a CI job that verifies the image builds on every push
 - **Day 22**: Startup environment validation — the server now checks required vars (`JWT_SECRET`, and `MONGO_URI` in production) and exits with a clear error instead of failing confusingly later, plus warnings for a weak `JWT_SECRET` or missing `CLIENT_URL` in production
 - **Day 23**: Unread counts & read receipts — DM conversations now report `unreadCount`, viewing a conversation marks it read, plus `/api/dm/unread-count` and `/api/notifications/unread-count` endpoints; covered by new tests
+- **Day 24**: Unread counts for workspace channels — new `ChannelRead` model tracks last-read time per user per channel, channel list now reports `unreadCount`, marked as read via REST or automatically when joining a channel over Socket.IO

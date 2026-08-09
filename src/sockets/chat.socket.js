@@ -3,6 +3,7 @@ const User = require('../models/User');
 const Workspace = require('../models/Workspace');
 const Message = require('../models/Message');
 const Channel = require('../models/Channel');
+const ChannelRead = require('../models/ChannelRead');
 const { resolveMentions } = require('../utils/mentions');
 const { createNotification } = require('../utils/notify');
 
@@ -56,10 +57,21 @@ const initChatSocket = (io) => {
       broadcastPresence(io, workspaceIds, userId, 'online');
     }
 
-    socket.on('joinChannel', ({ workspaceId, channel = 'general' }) => {
+    socket.on('joinChannel', async ({ workspaceId, channel = 'general' }) => {
       const room = `${workspaceId}:${channel}`;
       socket.join(room);
       socket.emit('joinedChannel', { room });
+
+      try {
+        await ChannelRead.findOneAndUpdate(
+          { user: socket.user._id, workspace: workspaceId, channel },
+          { lastReadAt: new Date() },
+          { upsert: true }
+        );
+      } catch (err) {
+        // Non-critical — don't interrupt the join if the read marker fails to save
+        console.error('Failed to update channel read marker:', err.message);
+      }
     });
 
     socket.on('leaveChannel', ({ workspaceId, channel = 'general' }) => {
