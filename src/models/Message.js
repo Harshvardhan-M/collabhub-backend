@@ -8,6 +8,12 @@ const messageSchema = new mongoose.Schema(
     channel: { type: String, default: 'general' },
     edited: { type: Boolean, default: false },
     deleted: { type: Boolean, default: false },
+    reactions: [
+      {
+        emoji: { type: String, required: true },
+        users: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }],
+      },
+    ],
   },
   { timestamps: true }
 );

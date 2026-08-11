@@ -93,6 +93,7 @@ Interactive Swagger UI is available at `/api-docs` once the server is running
 | `sendMessage` | `{ workspaceId, channel, content }` | Send & persist a chat message |
 | `editMessage` | `{ messageId, content }` | Edit your own message |
 | `deleteMessage` | `{ messageId }` | Soft-delete your own message |
+| `toggleReaction` | `{ messageId, emoji }` | Add/remove your reaction on a message |
 | `typing` | `{ workspaceId, channel }` | Notify others user is typing |
 
 | Event (server → client) | Payload | Description |
@@ -100,6 +101,7 @@ Interactive Swagger UI is available at `/api-docs` once the server is running
 | `newMessage` | message object | Broadcast when a message is sent |
 | `messageEdited` | message object | Broadcast when a message is edited |
 | `messageDeleted` | `{ _id, channel }` | Broadcast when a message is deleted |
+| `reactionUpdated` | `{ messageId, channel, reactions }` | Broadcast when a reaction is added/removed |
 | `userTyping` | `{ userId, name }` | Someone is typing |
 | `newNotification` | notification object | Sent directly to a user (workspace joins, mentions) |
 | `presenceUpdate` | `{ userId, status }` | A workspace member went online/offline |
@@ -134,3 +136,4 @@ Mention a teammate in a message with `@firstname` (e.g. `"hey @priya check this"
 - **Day 22**: Startup environment validation — the server now checks required vars (`JWT_SECRET`, and `MONGO_URI` in production) and exits with a clear error instead of failing confusingly later, plus warnings for a weak `JWT_SECRET` or missing `CLIENT_URL` in production
 - **Day 23**: Unread counts & read receipts — DM conversations now report `unreadCount`, viewing a conversation marks it read, plus `/api/dm/unread-count` and `/api/notifications/unread-count` endpoints; covered by new tests
 - **Day 24**: Unread counts for workspace channels — new `ChannelRead` model tracks last-read time per user per channel, channel list now reports `unreadCount`, marked as read via REST or automatically when joining a channel over Socket.IO
+- **Day 25**: Message reactions — `reactions` field on `Message` (emoji → users who reacted), toggled in real time via the `toggleReaction` socket event, included in the message history endpoint

@@ -25,6 +25,7 @@ exports.getMessages = async (req, res) => {
     // Fetch newest-first for pagination, then reverse to chronological order for display
     const messages = await Message.find(query)
       .populate('sender', 'name avatar')
+      .populate('reactions.users', 'name avatar')
       .sort({ createdAt: -1 })
       .limit(limit);
 

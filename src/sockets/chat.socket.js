@@ -169,6 +169,50 @@ const initChatSocket = (io) => {
       }
     });
 
+    // Toggles the current user's reaction with a given emoji on a message —
+    // adds it if they haven't reacted with it yet, removes it if they have.
+    socket.on('toggleReaction', async ({ messageId, emoji }) => {
+      try {
+        if (!emoji || !emoji.trim()) return;
+
+        const message = await Message.findById(messageId);
+        if (!message) {
+          return socket.emit('errorMessage', { message: 'Message not found' });
+        }
+        if (message.deleted) {
+          return socket.emit('errorMessage', { message: 'Cannot react to a deleted message' });
+        }
+
+        const userId = socket.user._id.toString();
+        let reactionGroup = message.reactions.find((r) => r.emoji === emoji);
+
+        if (!reactionGroup) {
+          message.reactions.push({ emoji, users: [socket.user._id] });
+        } else {
+          const alreadyReacted = reactionGroup.users.some((u) => u.toString() === userId);
+          if (alreadyReacted) {
+            reactionGroup.users = reactionGroup.users.filter((u) => u.toString() !== userId);
+          } else {
+            reactionGroup.users.push(socket.user._id);
+          }
+        }
+
+        // Drop any emoji group that's now empty
+        message.reactions = message.reactions.filter((r) => r.users.length > 0);
+
+        await message.save();
+
+        const room = `${message.workspace}:${message.channel}`;
+        io.to(room).emit('reactionUpdated', {
+          messageId: message._id,
+          channel: message.channel,
+          reactions: message.reactions,
+        });
+      } catch (err) {
+        socket.emit('errorMessage', { message: 'Failed to update reaction', error: err.message });
+      }
+    });
+
     socket.on('disconnect', async () => {
       console.log(`Socket disconnected: ${socket.user.name} (${socket.id})`);
 
