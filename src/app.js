@@ -28,7 +28,6 @@ if (process.env.NODE_ENV !== 'test') {
   app.use('/api', apiLimiter);
 }
 
-// Interactive API docs — relax helmet's CSP just for this route so Swagger UI renders
 app.use(
   '/api-docs',
   helmet({ contentSecurityPolicy: false }),

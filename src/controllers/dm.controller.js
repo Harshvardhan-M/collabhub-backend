@@ -21,7 +21,6 @@ exports.getConversations = asyncHandler(async (req, res) => {
     .populate('lastMessage')
     .sort({ updatedAt: -1 });
 
-  // Attach an unread count (messages from the other person, not yet read) to each conversation
   const withUnreadCounts = await Promise.all(
     conversations.map(async (conversation) => {
       const unreadCount = await DirectMessage.countDocuments({
@@ -92,7 +91,6 @@ exports.getConversationHistory = asyncHandler(async (req, res) => {
 
   const hasMore = messages.length === limit;
 
-  // Viewing the conversation marks the other person's messages as read
   await DirectMessage.updateMany(
     { conversation: conversation._id, sender: userId, read: false },
     { $set: { read: true } }
@@ -105,8 +103,6 @@ exports.getConversationHistory = asyncHandler(async (req, res) => {
   });
 });
 
-// @route  PUT /api/dm/:userId/read
-// @desc   Explicitly mark all messages from a user as read (e.g. without loading full history)
 exports.markConversationRead = asyncHandler(async (req, res) => {
   const { userId } = req.params;
 
@@ -126,8 +122,6 @@ exports.markConversationRead = asyncHandler(async (req, res) => {
   res.status(200).json({ message: 'Conversation marked as read' });
 });
 
-// @route  GET /api/dm/unread-count
-// @desc   Total number of unread direct messages across all conversations
 exports.getUnreadCount = asyncHandler(async (req, res) => {
   const conversations = await Conversation.find({ participants: req.user._id }).select('_id');
   const conversationIds = conversations.map((c) => c._id);

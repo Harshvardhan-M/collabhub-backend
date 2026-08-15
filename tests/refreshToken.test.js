@@ -1,0 +1,68 @@
+const request = require('supertest');
+require('./setup');
+const app = require('../src/app');
+
+describe('Refresh token flow', () => {
+  const user = { name: 'Token User', email: 'tokenuser@example.com', password: 'password123' };
+
+  it('issues both an access token and a refresh token on register', async () => {
+    const res = await request(app).post('/api/auth/register').send(user);
+    expect(res.statusCode).toBe(201);
+    expect(res.body).toHaveProperty('accessToken');
+    expect(res.body).toHaveProperty('refreshToken');
+  });
+
+  it('exchanges a valid refresh token for a new token pair', async () => {
+    const registerRes = await request(app).post('/api/auth/register').send(user);
+    const { refreshToken } = registerRes.body;
+
+    const res = await request(app).post('/api/auth/refresh').send({ refreshToken });
+
+    expect(res.statusCode).toBe(200);
+    expect(res.body).toHaveProperty('accessToken');
+    expect(res.body).toHaveProperty('refreshToken');
+    expect(res.body.refreshToken).not.toBe(refreshToken);
+  });
+
+  it('rejects reuse of an already-rotated refresh token', async () => {
+    const registerRes = await request(app).post('/api/auth/register').send(user);
+    const { refreshToken } = registerRes.body;
+
+    await request(app).post('/api/auth/refresh').send({ refreshToken });
+    const secondAttempt = await request(app).post('/api/auth/refresh').send({ refreshToken });
+
+    expect(secondAttempt.statusCode).toBe(401);
+  });
+
+  it('rejects an unknown refresh token', async () => {
+    const res = await request(app)
+      .post('/api/auth/refresh')
+      .send({ refreshToken: 'not-a-real-token' });
+
+    expect(res.statusCode).toBe(401);
+  });
+
+  it('new access token from refresh works on a protected route', async () => {
+    const registerRes = await request(app).post('/api/auth/register').send(user);
+    const refreshRes = await request(app)
+      .post('/api/auth/refresh')
+      .send({ refreshToken: registerRes.body.refreshToken });
+
+    const res = await request(app)
+      .get('/api/users/me')
+      .set('Authorization', `Bearer ${refreshRes.body.accessToken}`);
+
+    expect(res.statusCode).toBe(200);
+  });
+
+  it('logout revokes the refresh token', async () => {
+    const registerRes = await request(app).post('/api/auth/register').send(user);
+    const { refreshToken } = registerRes.body;
+
+    const logoutRes = await request(app).post('/api/auth/logout').send({ refreshToken });
+    expect(logoutRes.statusCode).toBe(200);
+
+    const refreshAttempt = await request(app).post('/api/auth/refresh').send({ refreshToken });
+    expect(refreshAttempt.statusCode).toBe(401);
+  });
+});

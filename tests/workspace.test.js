@@ -8,7 +8,7 @@ describe('Workspace API', () => {
 
   beforeEach(async () => {
     const res = await request(app).post('/api/auth/register').send(testUser);
-    token = res.body.token;
+    token = res.body.accessToken;
   });
 
   it('rejects workspace creation without a token', async () => {

@@ -31,7 +31,8 @@ const options = {
             _id: { type: 'string' },
             name: { type: 'string' },
             email: { type: 'string' },
-            token: { type: 'string' },
+            accessToken: { type: 'string' },
+            refreshToken: { type: 'string' },
           },
         },
         Workspace: {

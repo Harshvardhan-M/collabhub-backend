@@ -10,11 +10,11 @@ describe('Unread counts & read receipts', () => {
 
   beforeEach(async () => {
     const resA = await request(app).post('/api/auth/register').send(userA);
-    tokenA = resA.body.token;
+    tokenA = resA.body.accessToken;
     idA = resA.body._id;
 
     const resB = await request(app).post('/api/auth/register').send(userB);
-    tokenB = resB.body.token;
+    tokenB = resB.body.accessToken;
     idB = resB.body._id;
   });
 
@@ -29,7 +29,6 @@ describe('Unread counts & read receipts', () => {
       .set('Authorization', `Bearer ${tokenB}`);
     expect(unreadRes.body.unreadCount).toBe(1);
 
-    // Reading the conversation should mark it as read
     await request(app).get(`/api/dm/${idA}`).set('Authorization', `Bearer ${tokenB}`);
 
     const afterReadRes = await request(app)

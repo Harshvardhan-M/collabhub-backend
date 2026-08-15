@@ -10,10 +10,10 @@ describe('Workspace member management API', () => {
 
   beforeEach(async () => {
     const adminRes = await request(app).post('/api/auth/register').send(admin);
-    adminToken = adminRes.body.token;
+    adminToken = adminRes.body.accessToken;
 
     const memberRes = await request(app).post('/api/auth/register').send(member);
-    memberToken = memberRes.body.token;
+    memberToken = memberRes.body.accessToken;
     memberId = memberRes.body._id;
 
     const wsRes = await request(app)

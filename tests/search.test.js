@@ -10,10 +10,10 @@ describe('Search API', () => {
 
   beforeEach(async () => {
     const resA = await request(app).post('/api/auth/register').send(userA);
-    tokenA = resA.body.token;
+    tokenA = resA.body.accessToken;
 
     const resB = await request(app).post('/api/auth/register').send(userB);
-    tokenB = resB.body.token;
+    tokenB = resB.body.accessToken;
 
     const wsRes = await request(app)
       .post('/api/workspaces')
@@ -60,12 +60,12 @@ describe('Search API', () => {
 
   describe('GET /api/messages/:workspaceId/search', () => {
     it('finds a message containing the search term', async () => {
-      // Insert a message directly via the Message model since sending requires a socket
       const Message = require('../src/models/Message');
+      const me = await request(app).get('/api/users/me').set('Authorization', `Bearer ${tokenA}`);
+
       await Message.create({
         workspace: workspaceId,
-        sender: (await request(app).get('/api/users/me').set('Authorization', `Bearer ${tokenA}`))
-          .body._id,
+        sender: me.body._id,
         content: 'The deployment pipeline is broken again',
         channel: 'general',
       });

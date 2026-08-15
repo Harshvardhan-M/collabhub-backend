@@ -1,7 +1,6 @@
-const jwt = require('jsonwebtoken');
 const User = require('../models/User');
-
-const generateToken = (id) => jwt.sign({ id }, process.env.JWT_SECRET, { expiresIn: '7d' });
+const RefreshToken = require('../models/RefreshToken');
+const { generateAccessToken, issueTokenPair, issueRefreshToken } = require('../utils/tokens');
 
 exports.registerUser = async (req, res) => {
   try {
@@ -17,12 +16,14 @@ exports.registerUser = async (req, res) => {
     }
 
     const user = await User.create({ name, email, password });
+    const { accessToken, refreshToken } = await issueTokenPair(user._id);
 
     res.status(201).json({
       _id: user._id,
       name: user.name,
       email: user.email,
-      token: generateToken(user._id),
+      accessToken,
+      refreshToken,
     });
   } catch (err) {
     res.status(500).json({ message: 'Server error', error: err.message });
@@ -45,12 +46,53 @@ exports.loginUser = async (req, res) => {
     user.status = 'online';
     await user.save();
 
+    const { accessToken, refreshToken } = await issueTokenPair(user._id);
+
     res.status(200).json({
       _id: user._id,
       name: user.name,
       email: user.email,
-      token: generateToken(user._id),
+      accessToken,
+      refreshToken,
     });
+  } catch (err) {
+    res.status(500).json({ message: 'Server error', error: err.message });
+  }
+};
+
+exports.refreshAccessToken = async (req, res) => {
+  try {
+    const { refreshToken } = req.body;
+
+    if (!refreshToken) {
+      return res.status(400).json({ message: 'Refresh token is required' });
+    }
+
+    const stored = await RefreshToken.findOne({ token: refreshToken });
+    if (!stored || stored.expiresAt < new Date()) {
+      return res.status(401).json({ message: 'Invalid or expired refresh token' });
+    }
+
+    await stored.deleteOne();
+
+    const accessToken = generateAccessToken(stored.user);
+    const newRefreshToken = await issueRefreshToken(stored.user);
+
+    res.status(200).json({ accessToken, refreshToken: newRefreshToken });
+  } catch (err) {
+    res.status(500).json({ message: 'Server error', error: err.message });
+  }
+};
+
+exports.logoutUser = async (req, res) => {
+  try {
+    const { refreshToken } = req.body;
+
+    if (refreshToken) {
+      await RefreshToken.deleteOne({ token: refreshToken });
+    }
+
+    res.status(200).json({ message: 'Logged out successfully' });
   } catch (err) {
     res.status(500).json({ message: 'Server error', error: err.message });
   }

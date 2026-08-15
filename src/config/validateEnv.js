@@ -1,11 +1,4 @@
-/**
- * Validates required environment variables before the app starts.
- * Fails fast with a clear message instead of crashing later with a
- * confusing error (or, worse, silently running with an insecure default).
- */
 const REQUIRED_VARS = ['JWT_SECRET'];
-
-// Vars that are required, but only outside of tests (tests set their own via tests/setup.js)
 const REQUIRED_IN_PRODUCTION_ONLY = ['MONGO_URI'];
 
 const validateEnv = () => {

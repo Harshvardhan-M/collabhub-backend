@@ -48,7 +48,6 @@ router.get('/:workspaceId', protect, getMessages);
  *       - in: query
  *         name: channel
  *         schema: { type: string }
- *         description: Optionally scope the search to one channel
  *       - in: query
  *         name: limit
  *         schema: { type: integer, default: 20, maximum: 50 }

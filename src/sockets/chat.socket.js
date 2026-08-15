@@ -7,8 +7,6 @@ const ChannelRead = require('../models/ChannelRead');
 const { resolveMentions } = require('../utils/mentions');
 const { createNotification } = require('../utils/notify');
 
-// Tracks how many active sockets each user has open (they may have multiple
-// tabs/devices connected). Status only flips to offline when the count hits 0.
 const activeConnections = new Map();
 
 const getWorkspaceRoomIds = async (userId) => {
@@ -42,7 +40,6 @@ const initChatSocket = (io) => {
   io.on('connection', async (socket) => {
     console.log(`Socket connected: ${socket.user.name} (${socket.id})`);
 
-    // Personal room for direct notifications to this user
     socket.join(`user:${socket.user._id}`);
 
     const userId = socket.user._id.toString();
@@ -69,7 +66,6 @@ const initChatSocket = (io) => {
           { upsert: true }
         );
       } catch (err) {
-        // Non-critical — don't interrupt the join if the read marker fails to save
         console.error('Failed to update channel read marker:', err.message);
       }
     });
@@ -169,8 +165,6 @@ const initChatSocket = (io) => {
       }
     });
 
-    // Toggles the current user's reaction with a given emoji on a message —
-    // adds it if they haven't reacted with it yet, removes it if they have.
     socket.on('toggleReaction', async ({ messageId, emoji }) => {
       try {
         if (!emoji || !emoji.trim()) return;
@@ -183,23 +177,21 @@ const initChatSocket = (io) => {
           return socket.emit('errorMessage', { message: 'Cannot react to a deleted message' });
         }
 
-        const userId = socket.user._id.toString();
+        const uid = socket.user._id.toString();
         let reactionGroup = message.reactions.find((r) => r.emoji === emoji);
 
         if (!reactionGroup) {
           message.reactions.push({ emoji, users: [socket.user._id] });
         } else {
-          const alreadyReacted = reactionGroup.users.some((u) => u.toString() === userId);
+          const alreadyReacted = reactionGroup.users.some((u) => u.toString() === uid);
           if (alreadyReacted) {
-            reactionGroup.users = reactionGroup.users.filter((u) => u.toString() !== userId);
+            reactionGroup.users = reactionGroup.users.filter((u) => u.toString() !== uid);
           } else {
             reactionGroup.users.push(socket.user._id);
           }
         }
 
-        // Drop any emoji group that's now empty
         message.reactions = message.reactions.filter((r) => r.users.length > 0);
-
         await message.save();
 
         const room = `${message.workspace}:${message.channel}`;

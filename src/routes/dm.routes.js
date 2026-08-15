@@ -50,7 +50,6 @@ router.get('/unread-count', protect, getUnreadCount);
  *       - in: query
  *         name: before
  *         schema: { type: string }
- *         description: Message ID to paginate backwards (older) from
  *     responses:
  *       200:
  *         description: Paginated messages — { messages, hasMore, nextCursor }

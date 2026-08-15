@@ -95,8 +95,6 @@ exports.joinWorkspace = async (req, res) => {
   }
 };
 
-// @route  PUT /api/workspaces/:id/members/:userId/role
-// @desc   Promote or demote a member (admin only)
 exports.updateMemberRole = asyncHandler(async (req, res, next) => {
   const { id, userId } = req.params;
   const { role } = req.body;
@@ -126,8 +124,6 @@ exports.updateMemberRole = asyncHandler(async (req, res, next) => {
   res.status(200).json({ message: `Member role updated to ${role}`, member: targetMember });
 });
 
-// @route  DELETE /api/workspaces/:id/members/:userId
-// @desc   Remove a member from a workspace (admin only, or a member removing themselves)
 exports.removeMember = asyncHandler(async (req, res, next) => {
   const { id, userId } = req.params;
 

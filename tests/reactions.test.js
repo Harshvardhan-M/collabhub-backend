@@ -9,7 +9,7 @@ describe('Message reactions (model + history endpoint)', () => {
 
   beforeEach(async () => {
     const res = await request(app).post('/api/auth/register').send(user);
-    token = res.body.token;
+    token = res.body.accessToken;
     userId = res.body._id;
 
     const wsRes = await request(app)

@@ -30,7 +30,6 @@ exports.createChannel = asyncHandler(async (req, res, next) => {
   res.status(201).json(channel);
 });
 
-// @desc  List channels in a workspace, each with an unreadCount for the current user
 exports.getChannels = asyncHandler(async (req, res, next) => {
   const { workspaceId } = req.params;
 
@@ -65,27 +64,6 @@ exports.getChannels = asyncHandler(async (req, res, next) => {
   res.status(200).json(channelsWithUnread);
 });
 
-// @route  PUT /api/workspaces/:workspaceId/channels/:channelName/read
-// @desc   Mark a channel as read up to now for the current user
-exports.markChannelRead = asyncHandler(async (req, res, next) => {
-  const { workspaceId, channelName } = req.params;
-
-  const workspace = await Workspace.findById(workspaceId);
-  if (!workspace) return next(new AppError('Workspace not found', 404));
-
-  if (!checkMembership(workspace, req.user._id)) {
-    return next(new AppError('Not a member of this workspace', 403));
-  }
-
-  await ChannelRead.findOneAndUpdate(
-    { user: req.user._id, workspace: workspaceId, channel: channelName },
-    { lastReadAt: new Date() },
-    { upsert: true, new: true }
-  );
-
-  res.status(200).json({ message: 'Channel marked as read' });
-});
-
 exports.deleteChannel = asyncHandler(async (req, res, next) => {
   const { workspaceId, channelId } = req.params;
 
@@ -110,4 +88,23 @@ exports.deleteChannel = asyncHandler(async (req, res, next) => {
 
   await channel.deleteOne();
   res.status(200).json({ message: 'Channel deleted' });
+});
+
+exports.markChannelRead = asyncHandler(async (req, res, next) => {
+  const { workspaceId, channelName } = req.params;
+
+  const workspace = await Workspace.findById(workspaceId);
+  if (!workspace) return next(new AppError('Workspace not found', 404));
+
+  if (!checkMembership(workspace, req.user._id)) {
+    return next(new AppError('Not a member of this workspace', 403));
+  }
+
+  await ChannelRead.findOneAndUpdate(
+    { user: req.user._id, workspace: workspaceId, channel: channelName },
+    { lastReadAt: new Date() },
+    { upsert: true, new: true }
+  );
+
+  res.status(200).json({ message: 'Channel marked as read' });
 });

@@ -58,8 +58,6 @@ exports.markAllAsRead = async (req, res) => {
   }
 };
 
-// @route  GET /api/notifications/unread-count
-// @desc   Total number of unread notifications
 exports.getUnreadCount = async (req, res) => {
   try {
     const unreadCount = await Notification.countDocuments({

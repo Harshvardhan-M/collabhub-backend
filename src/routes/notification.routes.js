@@ -21,7 +21,6 @@ const { protect } = require('../middlewares/auth.middleware');
  *       - in: query
  *         name: before
  *         schema: { type: string }
- *         description: Notification ID to paginate backwards (older) from
  *     responses:
  *       200:
  *         description: Paginated notifications — { notifications, hasMore, nextCursor }

@@ -6,7 +6,7 @@ exports.getMessages = async (req, res) => {
     const { workspaceId } = req.params;
     const channel = req.query.channel || 'general';
     const limit = Math.min(parseInt(req.query.limit, 10) || 30, 100);
-    const { before } = req.query; // message _id to paginate backwards from
+    const { before } = req.query;
 
     const workspace = await Workspace.findById(workspaceId);
     if (!workspace) return res.status(404).json({ message: 'Workspace not found' });
@@ -22,7 +22,6 @@ exports.getMessages = async (req, res) => {
       }
     }
 
-    // Fetch newest-first for pagination, then reverse to chronological order for display
     const messages = await Message.find(query)
       .populate('sender', 'name avatar')
       .populate('reactions.users', 'name avatar')
@@ -41,8 +40,6 @@ exports.getMessages = async (req, res) => {
   }
 };
 
-// @route  GET /api/messages/:workspaceId/search?q=&channel=
-// @desc   Full-text search of messages within a workspace (optionally scoped to a channel)
 exports.searchMessages = async (req, res) => {
   try {
     const { workspaceId } = req.params;

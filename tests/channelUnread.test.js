@@ -11,10 +11,10 @@ describe('Channel unread counts', () => {
 
   beforeEach(async () => {
     const ownerRes = await request(app).post('/api/auth/register').send(owner);
-    ownerToken = ownerRes.body.token;
+    ownerToken = ownerRes.body.accessToken;
 
     const memberRes = await request(app).post('/api/auth/register').send(member);
-    memberToken = memberRes.body.token;
+    memberToken = memberRes.body.accessToken;
     memberId = memberRes.body._id;
 
     const wsRes = await request(app)
@@ -30,11 +30,13 @@ describe('Channel unread counts', () => {
   });
 
   it('reports unread messages in a channel the member has never opened', async () => {
+    const ownerId = (
+      await request(app).get('/api/users/me').set('Authorization', `Bearer ${ownerToken}`)
+    ).body._id;
+
     await Message.create({
       workspace: workspaceId,
-      sender: (
-        await request(app).get('/api/users/me').set('Authorization', `Bearer ${ownerToken}`)
-      ).body._id,
+      sender: ownerId,
       content: 'Welcome to the team!',
       channel: 'general',
     });

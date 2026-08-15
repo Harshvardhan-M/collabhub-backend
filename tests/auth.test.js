@@ -6,10 +6,10 @@ describe('Auth API', () => {
   const validUser = { name: 'Test User', email: 'testuser@example.com', password: 'password123' };
 
   describe('POST /api/auth/register', () => {
-    it('registers a new user and returns a token', async () => {
+    it('registers a new user and returns an access token', async () => {
       const res = await request(app).post('/api/auth/register').send(validUser);
       expect(res.statusCode).toBe(201);
-      expect(res.body).toHaveProperty('token');
+      expect(res.body).toHaveProperty('accessToken');
       expect(res.body.email).toBe(validUser.email);
       expect(res.body).not.toHaveProperty('password');
     });
@@ -40,12 +40,12 @@ describe('Auth API', () => {
       await request(app).post('/api/auth/register').send(validUser);
     });
 
-    it('logs in with correct credentials and returns a token', async () => {
+    it('logs in with correct credentials and returns an access token', async () => {
       const res = await request(app)
         .post('/api/auth/login')
         .send({ email: validUser.email, password: validUser.password });
       expect(res.statusCode).toBe(200);
-      expect(res.body).toHaveProperty('token');
+      expect(res.body).toHaveProperty('accessToken');
     });
 
     it('rejects login with the wrong password', async () => {

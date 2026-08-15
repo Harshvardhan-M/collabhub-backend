@@ -75,7 +75,6 @@ router.delete('/:channelId', protect, deleteChannel);
  *         name: channelName
  *         required: true
  *         schema: { type: string }
- *         description: Channel name, e.g. "general"
  *     responses:
  *       200:
  *         description: Channel marked as read

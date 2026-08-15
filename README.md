@@ -4,7 +4,7 @@ A real-time collaboration platform backend — team chat, live notifications,
 direct messages, and presence tracking, built with Node.js, Express, MongoDB, and Socket.IO.
 
 ## Planned Features
-- User authentication (JWT)
+- User authentication (JWT, with refresh tokens)
 - Workspaces & teams
 - Real-time chat (Socket.IO)
 - Live notifications
@@ -53,13 +53,21 @@ npm test
 Interactive Swagger UI is available at `/api-docs` once the server is running
 (e.g. `http://localhost:5000/api-docs`).
 
+## Authentication
+Login/register return an `accessToken` (15 min expiry) and a `refreshToken` (7 day expiry,
+stored server-side, single-use/rotated). Use the access token as a Bearer token on protected
+routes; when it expires, call `/api/auth/refresh` with the refresh token to get a new pair.
+Call `/api/auth/logout` to revoke a refresh token.
+
 ## API Endpoints
 | Method | Route | Description |
 |--------|-------|-------------|
 | GET | `/` | API status |
 | GET | `/api/health` | Health check |
 | POST | `/api/auth/register` | Register a new user |
-| POST | `/api/auth/login` | Login and receive JWT |
+| POST | `/api/auth/login` | Login, returns access + refresh token |
+| POST | `/api/auth/refresh` | Exchange a refresh token for a new pair |
+| POST | `/api/auth/logout` | Revoke a refresh token |
 | GET | `/api/users/me` | Get logged-in user's profile (protected) |
 | PUT | `/api/users/me` | Update logged-in user's profile (protected) |
 | GET | `/api/users/search?q=&limit=` | Search users by name/email — e.g. to start a DM (protected) |
@@ -88,7 +96,7 @@ Interactive Swagger UI is available at `/api-docs` once the server is running
 ## Socket.IO Events
 | Event (client → server) | Payload | Description |
 |--------------------------|---------|--------------|
-| `joinChannel` | `{ workspaceId, channel }` | Join a workspace channel room |
+| `joinChannel` | `{ workspaceId, channel }` | Join a workspace channel room (auto-marks it read) |
 | `leaveChannel` | `{ workspaceId, channel }` | Leave a channel room |
 | `sendMessage` | `{ workspaceId, channel, content }` | Send & persist a chat message |
 | `editMessage` | `{ messageId, content }` | Edit your own message |
@@ -107,7 +115,7 @@ Interactive Swagger UI is available at `/api-docs` once the server is running
 | `presenceUpdate` | `{ userId, status }` | A workspace member went online/offline |
 | `errorMessage` | `{ message }` | Something went wrong |
 
-Connect with a JWT: `io(url, { auth: { token: "<jwt>" } })`
+Connect with a JWT access token: `io(url, { auth: { token: "<accessToken>" } })`
 
 Mention a teammate in a message with `@firstname` (e.g. `"hey @priya check this"`) to trigger a real-time notification to them.
 
@@ -137,3 +145,4 @@ Mention a teammate in a message with `@firstname` (e.g. `"hey @priya check this"
 - **Day 23**: Unread counts & read receipts — DM conversations now report `unreadCount`, viewing a conversation marks it read, plus `/api/dm/unread-count` and `/api/notifications/unread-count` endpoints; covered by new tests
 - **Day 24**: Unread counts for workspace channels — new `ChannelRead` model tracks last-read time per user per channel, channel list now reports `unreadCount`, marked as read via REST or automatically when joining a channel over Socket.IO
 - **Day 25**: Message reactions — `reactions` field on `Message` (emoji → users who reacted), toggled in real time via the `toggleReaction` socket event, included in the message history endpoint
+- **Day 26**: Refresh tokens & logout — access tokens now expire in 15 minutes; a revocable, single-use (rotated), TTL-indexed `RefreshToken` handles session renewal via `/api/auth/refresh`, and `/api/auth/logout` revokes it
