@@ -59,6 +59,11 @@ stored server-side, single-use/rotated). Use the access token as a Bearer token 
 routes; when it expires, call `/api/auth/refresh` with the refresh token to get a new pair.
 Call `/api/auth/logout` to revoke a refresh token.
 
+Forgot password: `/api/auth/forgot-password` emails a reset link (valid 30 minutes, single-use).
+If SMTP isn't configured (see `.env.example`), the email is logged to the console instead of
+sent — handy for local development. `/api/auth/reset-password` completes the reset and revokes
+all existing sessions for that user.
+
 ## API Endpoints
 | Method | Route | Description |
 |--------|-------|-------------|
@@ -68,6 +73,8 @@ Call `/api/auth/logout` to revoke a refresh token.
 | POST | `/api/auth/login` | Login, returns access + refresh token |
 | POST | `/api/auth/refresh` | Exchange a refresh token for a new pair |
 | POST | `/api/auth/logout` | Revoke a refresh token |
+| POST | `/api/auth/forgot-password` | Request a password reset email |
+| POST | `/api/auth/reset-password` | Reset password with a valid token (revokes all sessions) |
 | GET | `/api/users/me` | Get logged-in user's profile (protected) |
 | PUT | `/api/users/me` | Update logged-in user's profile (protected) |
 | GET | `/api/users/search?q=&limit=` | Search users by name/email — e.g. to start a DM (protected) |
@@ -146,3 +153,4 @@ Mention a teammate in a message with `@firstname` (e.g. `"hey @priya check this"
 - **Day 24**: Unread counts for workspace channels — new `ChannelRead` model tracks last-read time per user per channel, channel list now reports `unreadCount`, marked as read via REST or automatically when joining a channel over Socket.IO
 - **Day 25**: Message reactions — `reactions` field on `Message` (emoji → users who reacted), toggled in real time via the `toggleReaction` socket event, included in the message history endpoint
 - **Day 26**: Refresh tokens & logout — access tokens now expire in 15 minutes; a revocable, single-use (rotated), TTL-indexed `RefreshToken` handles session renewal via `/api/auth/refresh`, and `/api/auth/logout` revokes it
+- **Day 27**: Password reset flow — `forgot-password`/`reset-password` endpoints, hashed single-use TTL tokens (30 min), account-enumeration-safe responses, resetting a password revokes all existing sessions; emails log to console when SMTP isn't configured

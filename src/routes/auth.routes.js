@@ -5,6 +5,8 @@ const {
   loginUser,
   refreshAccessToken,
   logoutUser,
+  forgotPassword,
+  resetPassword,
 } = require('../controllers/auth.controller');
 const { registerValidation, loginValidation } = require('../middlewares/validators');
 const { authLimiter } = require('../middlewares/rateLimiter');
@@ -111,5 +113,52 @@ router.post('/refresh', refreshAccessToken);
  *         description: Logged out
  */
 router.post('/logout', logoutUser);
+
+/**
+ * @openapi
+ * /auth/forgot-password:
+ *   post:
+ *     summary: Request a password reset email
+ *     tags: [Auth]
+ *     security: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required: [email]
+ *             properties:
+ *               email: { type: string, example: jane@example.com }
+ *     responses:
+ *       200:
+ *         description: Generic success message (doesn't reveal if the email exists)
+ */
+router.post('/forgot-password', limiter, forgotPassword);
+
+/**
+ * @openapi
+ * /auth/reset-password:
+ *   post:
+ *     summary: Reset a password using a valid reset token
+ *     tags: [Auth]
+ *     security: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required: [token, newPassword]
+ *             properties:
+ *               token: { type: string }
+ *               newPassword: { type: string, example: newpassword123 }
+ *     responses:
+ *       200:
+ *         description: Password reset, all sessions revoked
+ *       400:
+ *         description: Invalid or expired token
+ */
+router.post('/reset-password', limiter, resetPassword);
 
 module.exports = router;
