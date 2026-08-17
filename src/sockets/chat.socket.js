@@ -75,9 +75,10 @@ const initChatSocket = (io) => {
       socket.leave(room);
     });
 
-    socket.on('sendMessage', async ({ workspaceId, channel = 'general', content }) => {
+    socket.on('sendMessage', async ({ workspaceId, channel = 'general', content, attachment }) => {
       try {
-        if (!content || !content.trim()) return;
+        const trimmedContent = (content || '').trim();
+        if (!trimmedContent && !attachment) return; // need at least text or a file
 
         const channelExists = await Channel.findOne({ workspace: workspaceId, name: channel });
         if (!channelExists) {
@@ -87,8 +88,9 @@ const initChatSocket = (io) => {
         const message = await Message.create({
           workspace: workspaceId,
           sender: socket.user._id,
-          content: content.trim(),
+          content: trimmedContent,
           channel,
+          ...(attachment ? { attachment } : {}),
         });
 
         const populatedMessage = await message.populate('sender', 'name avatar');
@@ -96,7 +98,7 @@ const initChatSocket = (io) => {
         const room = `${workspaceId}:${channel}`;
         io.to(room).emit('newMessage', populatedMessage);
 
-        const mentionedUsers = await resolveMentions(content, workspaceId, socket.user._id);
+        const mentionedUsers = await resolveMentions(trimmedContent, workspaceId, socket.user._id);
         for (const mentionedUser of mentionedUsers) {
           await createNotification({
             recipient: mentionedUser._id,

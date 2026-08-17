@@ -99,13 +99,14 @@ all existing sessions for that user.
 | GET | `/api/dm/:userId?limit=30&before=<id>` | Get paginated DM history with a user — marks their messages as read (protected) |
 | POST | `/api/dm/:userId` | Send a direct message (protected) |
 | PUT | `/api/dm/:userId/read` | Explicitly mark a conversation as read (protected) |
+| POST | `/api/uploads` | Upload a file (image/PDF/etc, max 5MB), returns a URL (protected) |
 
 ## Socket.IO Events
 | Event (client → server) | Payload | Description |
 |--------------------------|---------|--------------|
 | `joinChannel` | `{ workspaceId, channel }` | Join a workspace channel room (auto-marks it read) |
 | `leaveChannel` | `{ workspaceId, channel }` | Leave a channel room |
-| `sendMessage` | `{ workspaceId, channel, content }` | Send & persist a chat message |
+| `sendMessage` | `{ workspaceId, channel, content, attachment? }` | Send & persist a chat message — `content` alone, `attachment` alone, or both |
 | `editMessage` | `{ messageId, content }` | Edit your own message |
 | `deleteMessage` | `{ messageId }` | Soft-delete your own message |
 | `toggleReaction` | `{ messageId, emoji }` | Add/remove your reaction on a message |
@@ -125,6 +126,13 @@ all existing sessions for that user.
 Connect with a JWT access token: `io(url, { auth: { token: "<accessToken>" } })`
 
 Mention a teammate in a message with `@firstname` (e.g. `"hey @priya check this"`) to trigger a real-time notification to them.
+
+## File Uploads
+`POST /api/uploads` (multipart/form-data, field name `file`) accepts images, PDFs, plain text,
+and zip files up to 5MB, saved to local disk under `/uploads` and served statically. Upload a
+file first to get back `{ url, filename, mimetype, size }`, then send it as a chat message by
+including that as the `attachment` field in the `sendMessage` socket event. In Docker, uploaded
+files persist in a named volume (`uploads-data`) so they survive container restarts.
 
 ## Progress Log
 - **Day 1**: Project setup, Express server skeleton, health check endpoint
@@ -154,3 +162,4 @@ Mention a teammate in a message with `@firstname` (e.g. `"hey @priya check this"
 - **Day 25**: Message reactions — `reactions` field on `Message` (emoji → users who reacted), toggled in real time via the `toggleReaction` socket event, included in the message history endpoint
 - **Day 26**: Refresh tokens & logout — access tokens now expire in 15 minutes; a revocable, single-use (rotated), TTL-indexed `RefreshToken` handles session renewal via `/api/auth/refresh`, and `/api/auth/logout` revokes it
 - **Day 27**: Password reset flow — `forgot-password`/`reset-password` endpoints, hashed single-use TTL tokens (30 min), account-enumeration-safe responses, resetting a password revokes all existing sessions; emails log to console when SMTP isn't configured
+- **Day 28**: File/image attachments — `POST /api/uploads` (Multer, disk storage, 5MB limit, MIME allowlist) returns a URL; chat messages can now carry an `attachment` alongside or instead of text, served statically and persisted via a Docker volume

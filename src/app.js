@@ -1,4 +1,5 @@
 const express = require('express');
+const path = require('path');
 const cors = require('cors');
 const helmet = require('helmet');
 const morgan = require('morgan');
@@ -13,6 +14,7 @@ const workspaceRoutes = require('./routes/workspace.routes');
 const messageRoutes = require('./routes/message.routes');
 const notificationRoutes = require('./routes/notification.routes');
 const dmRoutes = require('./routes/dm.routes');
+const uploadRoutes = require('./routes/upload.routes');
 const { errorHandler, notFound } = require('./middlewares/error.middleware');
 const { apiLimiter } = require('./middlewares/rateLimiter');
 
@@ -35,6 +37,9 @@ app.use(
   swaggerUi.setup(swaggerSpec, { customSiteTitle: 'CollabHub API Docs' })
 );
 
+// Serve uploaded files statically (e.g. /uploads/172839...-abc123.png)
+app.use('/uploads', express.static(path.join(__dirname, '..', 'uploads')));
+
 app.use('/api/health', healthRoutes);
 app.use('/api/auth', authRoutes);
 app.use('/api/users', userRoutes);
@@ -42,6 +47,7 @@ app.use('/api/workspaces', workspaceRoutes);
 app.use('/api/messages', messageRoutes);
 app.use('/api/notifications', notificationRoutes);
 app.use('/api/dm', dmRoutes);
+app.use('/api/uploads', uploadRoutes);
 
 app.get('/', (req, res) => {
   res.json({ message: 'CollabHub API is running' });
