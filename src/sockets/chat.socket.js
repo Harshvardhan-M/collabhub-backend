@@ -167,6 +167,39 @@ const initChatSocket = (io) => {
       }
     });
 
+    socket.on('togglePin', async ({ messageId }) => {
+      try {
+        const message = await Message.findById(messageId);
+        if (!message) {
+          return socket.emit('errorMessage', { message: 'Message not found' });
+        }
+
+        const workspace = await Workspace.findById(message.workspace);
+        if (!workspace) {
+          return socket.emit('errorMessage', { message: 'Workspace not found' });
+        }
+
+        const membership = workspace.members.find(
+          (m) => m.user.toString() === socket.user._id.toString()
+        );
+        if (!membership || membership.role !== 'admin') {
+          return socket.emit('errorMessage', { message: 'Only admins can pin messages' });
+        }
+
+        message.pinned = !message.pinned;
+        await message.save();
+
+        const room = `${message.workspace}:${message.channel}`;
+        io.to(room).emit('pinUpdated', {
+          messageId: message._id,
+          channel: message.channel,
+          pinned: message.pinned,
+        });
+      } catch (err) {
+        socket.emit('errorMessage', { message: 'Failed to update pin', error: err.message });
+      }
+    });
+
     socket.on('toggleReaction', async ({ messageId, emoji }) => {
       try {
         if (!emoji || !emoji.trim()) return;

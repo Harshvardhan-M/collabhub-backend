@@ -10,6 +10,7 @@ const messageSchema = new mongoose.Schema(
     channel: { type: String, default: 'general' },
     edited: { type: Boolean, default: false },
     deleted: { type: Boolean, default: false },
+    pinned: { type: Boolean, default: false },
     attachment: {
       url: { type: String },
       filename: { type: String },

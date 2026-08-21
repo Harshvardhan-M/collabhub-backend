@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const { getMessages, searchMessages } = require('../controllers/message.controller');
+const { getMessages, searchMessages, getPinnedMessages } = require('../controllers/message.controller');
 const { protect } = require('../middlewares/auth.middleware');
 
 /**
@@ -58,5 +58,26 @@ router.get('/:workspaceId', protect, getMessages);
  *         description: Missing query
  */
 router.get('/:workspaceId/search', protect, searchMessages);
+
+
+/**
+ * @openapi
+ * /messages/{workspaceId}/pinned:
+ *   get:
+ *     summary: List pinned messages in a workspace (optionally scoped to a channel)
+ *     tags: [Messages]
+ *     parameters:
+ *       - in: path
+ *         name: workspaceId
+ *         required: true
+ *         schema: { type: string }
+ *       - in: query
+ *         name: channel
+ *         schema: { type: string }
+ *     responses:
+ *       200:
+ *         description: List of pinned messages
+ */
+router.get('/:workspaceId/pinned', protect, getPinnedMessages);
 
 module.exports = router;

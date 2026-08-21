@@ -90,6 +90,7 @@ all existing sessions for that user.
 | PUT | `/api/workspaces/:workspaceId/channels/:channelName/read` | Mark a channel as read (protected) |
 | GET | `/api/messages/:workspaceId?channel=general&limit=30&before=<id>` | Get paginated chat history for a channel (protected) |
 | GET | `/api/messages/:workspaceId/search?q=&channel=&limit=` | Full-text search messages in a workspace (protected) |
+| GET | `/api/messages/:workspaceId/pinned?channel=` | List pinned messages (protected) |
 | GET | `/api/notifications?limit=20&before=<id>` | Get paginated notifications (protected) |
 | GET | `/api/notifications/unread-count` | Get total unread notification count (protected) |
 | PUT | `/api/notifications/:id/read` | Mark one notification as read (protected) |
@@ -110,6 +111,7 @@ all existing sessions for that user.
 | `editMessage` | `{ messageId, content }` | Edit your own message |
 | `deleteMessage` | `{ messageId }` | Soft-delete your own message |
 | `toggleReaction` | `{ messageId, emoji }` | Add/remove your reaction on a message |
+| `togglePin` | `{ messageId }` | Pin/unpin a message — admin only |
 | `typing` | `{ workspaceId, channel }` | Notify others user is typing |
 
 | Event (server → client) | Payload | Description |
@@ -118,6 +120,7 @@ all existing sessions for that user.
 | `messageEdited` | message object | Broadcast when a message is edited |
 | `messageDeleted` | `{ _id, channel }` | Broadcast when a message is deleted |
 | `reactionUpdated` | `{ messageId, channel, reactions }` | Broadcast when a reaction is added/removed |
+| `pinUpdated` | `{ messageId, channel, pinned }` | Broadcast when a message is pinned/unpinned |
 | `userTyping` | `{ userId, name }` | Someone is typing |
 | `newNotification` | notification object | Sent directly to a user (workspace joins, mentions) |
 | `presenceUpdate` | `{ userId, status }` | A workspace member went online/offline |
@@ -163,3 +166,4 @@ files persist in a named volume (`uploads-data`) so they survive container resta
 - **Day 26**: Refresh tokens & logout — access tokens now expire in 15 minutes; a revocable, single-use (rotated), TTL-indexed `RefreshToken` handles session renewal via `/api/auth/refresh`, and `/api/auth/logout` revokes it
 - **Day 27**: Password reset flow — `forgot-password`/`reset-password` endpoints, hashed single-use TTL tokens (30 min), account-enumeration-safe responses, resetting a password revokes all existing sessions; emails log to console when SMTP isn't configured
 - **Day 28**: File/image attachments — `POST /api/uploads` (Multer, disk storage, 5MB limit, MIME allowlist) returns a URL; chat messages can now carry an `attachment` alongside or instead of text, served statically and persisted via a Docker volume
+- **Day 29**: Pinned messages — admin-only `togglePin` socket event, `pinned` flag on `Message`, `GET /api/messages/:workspaceId/pinned` to list them, broadcast via `pinUpdated`
