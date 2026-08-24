@@ -2,8 +2,9 @@ const express = require('express');
 const path = require('path');
 const cors = require('cors');
 const helmet = require('helmet');
-const morgan = require('morgan');
 const mongoSanitize = require('express-mongo-sanitize');
+const requestId = require('./middlewares/requestId.middleware');
+const requestLogger = require('./config/logger');
 const swaggerUi = require('swagger-ui-express');
 const swaggerSpec = require('./config/swagger');
 
@@ -20,11 +21,14 @@ const { apiLimiter } = require('./middlewares/rateLimiter');
 
 const app = express();
 
+app.use(requestId);
 app.use(helmet());
 app.use(cors());
 app.use(express.json());
 app.use(mongoSanitize());
-app.use(morgan('dev'));
+if (process.env.NODE_ENV !== 'test') {
+  app.use(requestLogger);
+}
 
 if (process.env.NODE_ENV !== 'test') {
   app.use('/api', apiLimiter);
